@@ -1,4 +1,4 @@
 pifacecommon
 ============
 
-Common functions for interacting with PiFace products
+Common functions for interacting with PiFace products.
