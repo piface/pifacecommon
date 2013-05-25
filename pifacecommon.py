@@ -81,6 +81,74 @@ class InitError(Exception):
     pass
 
 
+class InputDeviceError(Exception):
+    pass
+
+
+class DigitalItem(object):
+    """An item connected to a pin on a PiFace product"""
+    def __init__(self, pin_num, port, board_num=0):
+        self.pin_num = pin_num
+        self.port = port
+        if board_num < 0 or board_num >= MAX_BOARDS:
+            raise RangeError(
+                "Specified board index (%d) out of range." % board_num
+            )
+        else:
+            self.board_num = board_num
+
+    @property
+    def handler(self):
+        return sys.modules[__name__]
+
+
+class DigitalInputItem(Item):
+    """An input connected to a pin a PiFace product"""
+    def __init__(self, pin_num, port, board_num=0):
+        super().__init__(pin_num, port, board_num)
+
+    @property
+    def value(self):
+        return 1 ^ self.handler.read_bit(
+            self.pin_num,
+            self.port,
+            self.board_num)
+
+    @value.setter
+    def value(self, data):
+        raise InputDeviceError("You cannot set an input's values!")
+
+
+class DigitalOutputItem(Item):
+    """An output connected to a pin a PiFace product"""
+    def __init__(self, pin_num, port, board_num=0):
+        super().__init__(pin_num, port, board_num)
+
+    @property
+    def value(self):
+        return self.handler.read_bit(
+            self.pin_num,
+            self.port,
+            self.board_num)
+
+    @value.setter
+    def value(self, data):
+        return self.handler.write_bit(
+            data,
+            self.pin_num,
+            self.port,
+            self.board_num)
+
+    def turn_on(self):
+        self.value = 1
+
+    def turn_off(self):
+        self.value = 0
+
+    def toggle(self):
+        self.value = not self.value
+
+
 class _spi_ioc_transfer(ctypes.Structure):
     """SPI ioc transfer structure (from linux/spi/spidev.h)"""
     _fields_ = [
