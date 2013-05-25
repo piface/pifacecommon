@@ -102,7 +102,7 @@ class DigitalItem(object):
         return sys.modules[__name__]
 
 
-class DigitalInputItem(Item):
+class DigitalInputItem(DigitalItem):
     """An input connected to a pin a PiFace product"""
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
@@ -119,7 +119,7 @@ class DigitalInputItem(Item):
         raise InputDeviceError("You cannot set an input's values!")
 
 
-class DigitalOutputItem(Item):
+class DigitalOutputItem(DigitalItem):
     """An output connected to a pin a PiFace product"""
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
