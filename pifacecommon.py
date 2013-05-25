@@ -26,6 +26,8 @@ assert sys.version_info.major >= 3, \
     __name__ + " is only supported on Python 3."
 
 
+MAX_BOARDS = 3
+
 WRITE_CMD = 0
 READ_CMD = 1
 
