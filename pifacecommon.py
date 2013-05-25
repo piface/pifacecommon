@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import ctypes
 import posix
+from time import sleep
 from fcntl import ioctl
 from asm_generic_ioctl import _IOW
 
@@ -261,3 +262,9 @@ def spisend(bytes_to_send):
     iomsg = _IOW(SPI_IOC_MAGIC, 0, ctypes.c_char*ctypes.sizeof(transfer))
     ioctl(spidev_fd, iomsg, ctypes.addressof(transfer))
     return ctypes.string_at(rbuffer, ctypes.sizeof(rbuffer))
+
+
+def sleep_microseconds(microseconds):
+    # divide microseconds by 1 million for seconds
+    seconds = microseconds / float(1000000)
+    sleep(seconds)
