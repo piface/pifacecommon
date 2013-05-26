@@ -178,6 +178,7 @@ def deinit():
     """Closes the spidev file descriptor"""
     global spidev_fd
     posix.close(spidev_fd)
+    spidev_fd = None
 
 
 def get_bit_mask(bit_num):
