@@ -8,6 +8,14 @@ then
 	exit 1
 fi
 
+# unblacklist spi
+./unblacklist-spi-bcm2708.sh
+if [ $? -ne 0 ]
+then
+    printf "Failed to unblacklist spi-bcm2708.\nExiting...\n"
+    exit 1
+fi
+
 # set up spidev permissions
 ./spidev-setup.sh
 if [ $? -ne 0 ]
