@@ -218,16 +218,20 @@ class _spi_ioc_transfer(ctypes.Structure):
 def init(bus=0, chip_select=0):
     """Initialises the PiFace Digital board"""
     global spidev_fd
-    spidev_fd = posix.open(
-        "%s%d.%d" % (SPIDEV, bus, chip_select),
-        posix.O_RDWR
-    )
+    try:
+        spidev_fd = posix.open(
+            "%s%d.%d" % (SPIDEV, bus, chip_select),
+            posix.O_RDWR
+        )
+    except OSError as e:
+        raise InitError(e)
 
 
 def deinit():
     """Closes the spidev file descriptor"""
     global spidev_fd
-    posix.close(spidev_fd)
+    if spidev_fd:
+        posix.close(spidev_fd)
     spidev_fd = None
 
 
