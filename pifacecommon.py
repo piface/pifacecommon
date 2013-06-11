@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #!/usr/bin/env python3
 """Provides common I/O methods for interfacing with PiFace Products
 Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
@@ -20,6 +23,7 @@ import ctypes
 import posix
 import select
 import time
+from abc import ABCMeta
 from fcntl import ioctl
 from asm_generic_ioctl import _IOW
 
@@ -104,10 +108,11 @@ class InputDeviceError(Exception):
     pass
 
 
-class DigitalItem(object):
-    """An item connected to a pin on a PiFace product"""
-    def __init__(self, pin_num, port, board_num=0):
-        self.pin_num = pin_num
+class DigitalPort(object):
+    """A port on a PiFace Digital product"""
+    __metaclass__ = ABCMeta
+
+    def __init__(self, port, board_num=0):
         self.port = port
         if board_num < 0 or board_num >= MAX_BOARDS:
             raise RangeError(
@@ -121,8 +126,56 @@ class DigitalItem(object):
         return sys.modules[__name__]
 
 
+class DigitalInputPort(DigitalPort):
+    """An input port on a PiFace Digital product"""
+    def __init__(self, port, board_num=0):
+        super().__init__(port, board_num)
+
+    @property
+    def value(self):
+        return 0xFF ^ self.handler.read(self.port, self.board_num)
+
+    @value.setter
+    def value(self, data):
+        raise InputDeviceError("You cannot set an input's values!")
+
+
+class DigitalOutputPort(DigitalPort):
+    """An output port on a PiFace Digital product"""
+    def __init__(self, port, board_num=0):
+        super().__init__(port, board_num)
+
+    @property
+    def value(self):
+        return self.handler.read(self.port, self.board_num)
+
+    @value.setter
+    def value(self, data):
+        return self.handler.write(data, self.port, self.board_num)
+
+    def all_on(self):
+        self.value = 0xFF
+
+    def all_off(self):
+        self.value = 0
+
+    def toggle(self):
+        self.value = 0xFF ^ self.value
+
+
+class DigitalItem(DigitalPort):
+    """An item connected to a pin on a PiFace Digital product.
+    Has most of the same properties of a Digital Port.
+    """
+    __metaclass__ = ABCMeta
+
+    def __init__(self, pin_num, port, board_num=0):
+        super().__init__(port, board_num)
+        self.pin_num = pin_num
+
+
 class DigitalInputItem(DigitalItem):
-    """An input connected to a pin a PiFace product"""
+    """An input connected to a pin a PiFace Digital product"""
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
 
@@ -139,7 +192,7 @@ class DigitalInputItem(DigitalItem):
 
 
 class DigitalOutputItem(DigitalItem):
-    """An output connected to a pin a PiFace product"""
+    """An output connected to a pin a PiFace Digital product"""
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
 
