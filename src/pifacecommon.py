@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-#!/usr/bin/env python3
 """Provides common I/O methods for interfacing with PiFace Products
 Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
 

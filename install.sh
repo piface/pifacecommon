@@ -9,7 +9,7 @@ then
 fi
 
 # unblacklist spi
-./unblacklist-spi-bcm2708.sh
+./scripts/unblacklist-spi-bcm2708.sh
 if [ $? -ne 0 ]
 then
     printf "Failed to unblacklist spi-bcm2708.\nExiting...\n"
@@ -17,7 +17,7 @@ then
 fi
 
 # set up spidev permissions
-./spidev-setup.sh
+./scripts/spidev-setup.sh
 if [ $? -ne 0 ]
 then
     printf "Failed to setup spidev.\nExiting...\n"
@@ -25,6 +25,10 @@ then
 fi
 
 # install python library
+printf "Building egg...\n"
+python3 setup.py bdist_egg
+
+# tp - ultimately I want to just distribute the egg
 printf "Installing pifacecommon...\n"
-python3 setup.py install
+easy_install3 dist/pifacecommon-1.0-py3.2.egg
 printf "Done!\n"
