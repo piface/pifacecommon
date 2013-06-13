@@ -397,8 +397,10 @@ def wait_for_interrupt(port, input_func_map=None, timeout=None):
         # wait here until input
         try:
             events = _wait_for_event(epoll, timeout)
-        except KeyboardInterrupt:
-            break
+        except KeyboardInterrupt as k:
+            epoll.close()
+            disable_interrupts(port)
+            raise k
 
         # if we have some events...
         if len(events) <= 0:
