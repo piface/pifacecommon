@@ -9,7 +9,7 @@ setup(
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
     url='http://pi.cs.man.ac.uk/interface.htm',
-    py_modules=['src/pifacecommon', 'src/asm_generic_ioctl'],
+    py_modules=['pifacecommon', 'asm_generic_ioctl'],
 	long_description="""\
 		pifacecommon provides common classes, functions and variables to various
 		piface related modules.

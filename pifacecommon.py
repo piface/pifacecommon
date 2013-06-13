@@ -393,14 +393,15 @@ def wait_for_interrupt(port, input_func_map=None, timeout=None):
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
 
+    kb_interrupt = None
+
     while True:
         # wait here until input
         try:
             events = _wait_for_event(epoll, timeout)
         except KeyboardInterrupt as k:
-            epoll.close()
-            disable_interrupts(port)
-            raise k
+            kb_interrupt = k
+            break
 
         # if we have some events...
         if len(events) <= 0:
@@ -416,6 +417,10 @@ def wait_for_interrupt(port, input_func_map=None, timeout=None):
 
     epoll.close()
     disable_interrupts(port)
+
+    # deal with the kb_interrupt here
+    if kb_interrupt is not None:
+        raise kb_interrupt
 
 
 def _wait_for_event(epoll, timeout=None):
