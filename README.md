@@ -28,11 +28,15 @@ privileges to access them. You'll need to add a udev rule (udev monitors and
 configures devices) and set up groups by running `spidev-setup.sh'.
 
 ### 2. Building and installing the distribution egg
+You'll need to install the Python 3 setup tools.
+
+	$ sudo aptitude install python3-setuptools
+
 A Python egg can be distributed on it's own but for the time being we'll build
-one from source.
+one from source and install it using easy_install3.
 
     $ python3 setup.py bdist_egg
     $ easy_install3 dist/pifacecommon-1.0-py3.2.egg
 
-Alternatively we could have run `python3 setup.py install' but I'm hoping to
-distribute the eggs on their own (or using debian) soon.
+Alternatively we could have just run `python3 setup.py install' but I'm hoping
+to distribute the eggs on their own (in a .deb) soon.

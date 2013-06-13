@@ -25,6 +25,11 @@ then
 fi
 
 # install python library
+
+# install python3 setup tools
+#aptitude install python3-setuptools
+apt-get install -y python3-setuptools # apt-get is slightly faster
+
 printf "Building egg...\n"
 python3 setup.py bdist_egg
 
