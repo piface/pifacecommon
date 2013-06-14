@@ -1,12 +1,21 @@
 pifacecommon
 ============
 
-Common functions for interacting with PiFace products.
+Common functions for interacting with PiFace products. Also available from 
+[PyPI](https://pypi.python.org/pypi/pifacecommon/)
 
 Auto Installation
 =================
 ### Installing the software
+github:
+
+    $ git clone https://github.com/piface/pifacecommon.git
+    $ cd pifacecommon
     $ sudo ./install.sh
+
+### PyPI (you'll have to set up the SPI stuff yourself though):
+
+    $ sudo easy_install3 pifacecommon
 
 Manual Installation
 ===================
