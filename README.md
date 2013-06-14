@@ -6,14 +6,14 @@ Common functions for interacting with PiFace products. Also available from
 
 Auto Installation
 =================
-### Installing the software
-github:
+### GitHub
 
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon
     $ sudo ./install.sh
 
-### PyPI (you'll have to set up the SPI stuff yourself though):
+### PyPI
+(You will have to set up SPI stuff manually if this is your first time)
 
     $ sudo easy_install3 pifacecommon
 
