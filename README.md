@@ -11,24 +11,23 @@ Auto Installation
 Manual Installation
 ===================
 ### 1. Enable the SPI module
-The PiFace tools communicate with the Raspberry Pi using the SPI interface.
+PiFace boards communicate with the Raspberry Pi through the SPI interface.
 The SPI interface driver is included in the latest Raspbian distributions
-but is not enabled by default.
+but is not enabled by default. You can permanently enable it by running one of 
+the helper scripts in this repository (under bin/):
 
-To load the SPI driver manually, type:
+    $ sudo bin/unblacklist-spi-bcm2708.sh
 
-    $ sudo modprobe spi-bcm2708
+or to load the SPI driver manually, type `$ sudo modprobe spi-bcm2708`. *This will not persist after a reboot*.
 
-*This will not persist after a reboot.* To permanently enable the SPI module
-comment out the spi module blacklist line in /etc/modprobe.d/raspi-blacklist.conf.
-You can do this automatically by running the `unblacklist-spi-bcm2708.sh' script.
+After a reboot the /dev/spidev* devices should now appear but they require
+special privileges for the user *pi* to access them. You can set these up by
+running:
 
-After a reboot the /dev/spidev* devices should appear but they require special
-privileges to access them. You'll need to add a udev rule (udev monitors and
-configures devices) and set up groups by running `spidev-setup.sh'.
+    $ sudo bin/spidev-setup.sh
 
 ### 2. Building and installing
-Python automatically builds the source, generates the egg file and installs.
+Python automatically builds the source, generates the egg file and installs with:
 
     $ sudo python3 setup.py install
 

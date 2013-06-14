@@ -90,6 +90,8 @@ FILE_IO_TIMEOUT = 1
 SPI_IOC_MAGIC = 107
 
 SPIDEV = '/dev/spidev'
+SPI_HELP_LINK = \
+    "https://github.com/piface/pifacecommon#1-enable-the-spi-module"
 
 spidev_fd = None
 
@@ -268,14 +270,15 @@ class _spi_ioc_transfer(ctypes.Structure):
 
 def init(bus=0, chip_select=0):
     """Initialises the PiFace Digital board"""
+    spi_device = "%s%d.%d" % (SPIDEV, bus, chip_select)
     global spidev_fd
     try:
-        spidev_fd = posix.open(
-            "%s%d.%d" % (SPIDEV, bus, chip_select),
-            posix.O_RDWR
-        )
+        spidev_fd = posix.open(spi_device, posix.O_RDWR)
     except OSError as e:
-        raise InitError(e)
+        raise InitError(
+            "I can't see %s. Have you enabled the SPI module? (%s)"
+            % (spi_device, SPI_HELP_LINK)
+        ) from e
 
 
 def deinit():
