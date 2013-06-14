@@ -23,7 +23,7 @@ import select
 import time
 from abc import ABCMeta
 from fcntl import ioctl
-from asm_generic_ioctl import _IOW
+from .asm_generic_ioctl import _IOW
 
 # spi stuff requires Python 3
 assert sys.version_info.major >= 3, \
@@ -365,7 +365,7 @@ def spisend(bytes_to_send):
         len=ctypes.sizeof(wbuffer))
 
      # send the spi command (with a little help from asm-generic
-    iomsg = _IOW(SPI_IOC_MAGIC, 0, ctypes.c_char*ctypes.sizeof(transfer))
+    iomsg = _IOW(SPI_IOC_MAGIC, 0, ctypes.c_char * ctypes.sizeof(transfer))
     ioctl(spidev_fd, iomsg, ctypes.addressof(transfer))
     return ctypes.string_at(rbuffer, ctypes.sizeof(rbuffer))
 
@@ -436,14 +436,15 @@ def _call_mapped_input_functions(port, input_func_map):
     Returns whether the wait_for_input function should keep waiting for input
     """
     if port == GPIOA:
-        intflag = INTFA 
+        intflag = INTFA
         intcapture = INTCAPA
     else:
         intflag = INTFB
         intcapture = INTCAPB
 
     for board_i in range(MAX_BOARDS):
-        this_board_ifm = [m for m in input_func_map if m['board_num'] == board_i]
+        this_board_ifm = \
+            [m for m in input_func_map if m['board_num'] == board_i]
 
         # read the interrupt status of this PiFace board
         # interrupt bit (int_bit) - bit map showing what caused the interrupt
@@ -452,7 +453,7 @@ def _call_mapped_input_functions(port, input_func_map):
         if int_flag_bit == 0:
             continue  # The interrupt has not been flagged on this board
         int_bit_num = get_bit_num(int_flag_bit)
-        
+
         # interrupt byte (int_byte) - snapshot of in port when int occured
         int_byte = read(intcapture, board_i)
 
@@ -498,7 +499,7 @@ def enable_interrupts(port):
         _set_gpio_interrupt_edge()
     except Timeout as e:
         raise InterruptEnableException(
-            "There was an error bringing gpio%d into userspace. %s" % \
+            "There was an error bringing gpio%d into userspace. %s" %
             (GPIO_INTERRUPT_PIN, e.message)
         )
 
@@ -506,7 +507,8 @@ def enable_interrupts(port):
 def _bring_gpio_interrupt_into_userspace():
     try:
         # is it already there?
-        with open(GPIO_INTERRUPT_DEVICE_VALUE): return
+        with open(GPIO_INTERRUPT_DEVICE_VALUE):
+            return
     except IOError:
         # no, bring it into userspace
         with open(GPIO_EXPORT_FILE, 'w') as export_file:
@@ -533,10 +535,11 @@ def _wait_until_file_exists(filename):
     time_limit = start_time + FILE_IO_TIMEOUT
     while time.time() < time_limit:
         try:
-            with open(filename): return
+            with open(filename):
+                return
         except IOError:
             pass
-    
+
     raise Timeout("Waiting too long for %s." % filename)
 
 

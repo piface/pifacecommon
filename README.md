@@ -27,16 +27,17 @@ After a reboot the /dev/spidev* devices should appear but they require special
 privileges to access them. You'll need to add a udev rule (udev monitors and
 configures devices) and set up groups by running `spidev-setup.sh'.
 
-### 2. Building and installing the distribution egg
-You'll need to install the Python 3 setup tools.
+### 2. Building and installing
+Python automatically builds the source, generates the egg file and installs.
 
-	$ sudo aptitude install python3-setuptools
+    $ sudo python3 setup.py install
 
-A Python egg can be distributed on it's own but for the time being we'll build
-one from source and install it using easy_install3.
+Examples
+========
 
-    $ python3 setup.py bdist_egg
-    $ easy_install3 dist/pifacecommon-1.0-py3.2.egg
-
-Alternatively we could have just run `python3 setup.py install' but I'm hoping
-to distribute the eggs on their own (in a .deb) soon.
+    $ python3
+    >>> import pifacecommon
+    >>> pifacecommon.init()
+    >>> pifacecommon.write(0xAA, pifacecommon.GPIOA)
+    >>> pifacecommon.read(pifacecommon.GPIOA)
+    0xAA
