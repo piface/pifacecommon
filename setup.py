@@ -2,15 +2,16 @@
 
 from setuptools import setup
 
+
 setup(
     name='pifacecommon',
     version='1.0',
     description='The PiFace common functions module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
-    url='http://pi.cs.man.ac.uk/interface.htm',
+    url='https://github.com/piface/pifacecommon',
     packages=['pifacecommon'],
-    long_description="pifacecommon provides common classes, functions and"
+    long_description="pifacecommon provides common classes, functions and "
         "variables to various piface related modules.",
     classifiers=[
         "License :: OSI Approved :: GNU Affero General Public License v3 or "

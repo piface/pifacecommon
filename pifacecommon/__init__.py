@@ -15,6 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
+# Python 3 check (spi stuff)
+assert sys.version_info.major >= 3, __name__ + " requires Python 3."
+
 # constants
 from .core import (
     MAX_BOARDS,
@@ -51,6 +55,9 @@ from .core import (
     ODR_OFF,
     INTPOL_HIGH,
     INTPOL_LOW,
+)
+
+from .interrupts import (
     IN_EVENT_DIR_ON,
     IN_EVENT_DIR_OFF,
     IN_EVENT_DIR_BOTH,
@@ -64,6 +71,9 @@ from .core import (
     DigitalItem,
     DigitalInputItem,
     DigitalOutputItem,
+)
+
+from .interrupts import (
     InputFunctionMap,
 )
 
@@ -79,6 +89,9 @@ from .core import (
     write,
     spisend,
     sleep_microseconds,
+)
+
+from .interrupts import (
     wait_for_interrupt,
     clear_interrupts,
     enable_interrupts,
