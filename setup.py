@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-
 from setuptools import setup
 
 
 setup(
     name='pifacecommon',
-    version='1.0',
+    version='1.1',
     description='The PiFace common functions module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
