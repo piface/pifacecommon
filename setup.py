@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-from setuptools import setup
+from distutils.core import setup
 
 
 setup(
@@ -22,7 +21,4 @@ setup(
     ],
     keywords='piface raspberrypi openlx',
     license='GPLv3+',
-    install_requires=[
-        'setuptools',
-    ],
 )
