@@ -77,18 +77,6 @@ SPI_HELP_LINK = \
 spidev_fd = None
 
 
-class RangeError(Exception):
-    pass
-
-
-class InitError(Exception):
-    pass
-
-
-class InputDeviceError(Exception):
-    pass
-
-
 class DigitalPort(object):
     """A port on a PiFace Digital product"""
     __metaclass__ = ABCMeta
