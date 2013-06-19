@@ -23,6 +23,7 @@ import time
 from abc import ABCMeta
 from fcntl import ioctl
 from .asm_generic_ioctl import _IOW
+from .errors import (RangeError, InitError, InputDeviceError)
 
 
 MAX_BOARDS = 4
