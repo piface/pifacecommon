@@ -212,6 +212,10 @@ class _spi_ioc_transfer(ctypes.Structure):
 def init(bus=0, chip_select=0):
     """Initialises the SPI device file descriptor.
 
+    :param bus: The SPI device bus number
+    :type bus: int
+    :param chip_select: The SPI device chip_select number
+    :param chip_select: int
     :raises: InitError
     """
     spi_device = "%s%d.%d" % (SPIDEV, bus, chip_select)
@@ -236,6 +240,8 @@ def deinit():
 def get_bit_mask(bit_num):
     """Translates a bit num to bit mask.
 
+    :param bit_num: The bit number.
+    :type bit_num: int
     :returns: int -- the bit mask
     :raises: RangeError
 
@@ -257,6 +263,8 @@ def get_bit_num(bit_pattern):
     """Returns the lowest bit num from a given bit pattern. Returns None if no
     bits set.
 
+    :param bit_pattern: The bit pattern.
+    :type bit_pattern: int
     :returns: int -- the bit number
     :returns: None -- no bits set
 
@@ -284,6 +292,12 @@ def get_bit_num(bit_pattern):
 def read_bit(bit_num, address, board_num=0):
     """Returns the bit specified from the address.
 
+    :param bit_num: The bit number to read from.
+    :type bit_num: int
+    :param address: The address to read from.
+    :type address: int
+    :param board_num: The board number to read from.
+    :type board_num: int
     :returns: int -- the bit value from the address
     """
     value = read(address, board_num)
@@ -292,7 +306,17 @@ def read_bit(bit_num, address, board_num=0):
 
 
 def write_bit(value, bit_num, address, board_num=0):
-    """Writes the value given to the bit in the address specified."""
+    """Writes the value given to the bit in the address specified.
+
+    :param value: The value to write.
+    :type value: int
+    :param bit_num: The bit number to write to.
+    :type bit_num: int
+    :param address: The address to write to.
+    :type address: int
+    :param board_num: The board number to write to.
+    :type board_num: int
+    """
     bit_mask = get_bit_mask(bit_num)
     old_byte = read(address, board_num)
      # generate the new byte
@@ -304,21 +328,41 @@ def write_bit(value, bit_num, address, board_num=0):
 
 
 def __get_device_opcode(board_num, read_write_cmd):
-    """Returns the device opcode (as a byte)."""
+    """Returns the device opcode (as a byte).
+
+    :param board_num: The board number to generate the opcode from.
+    :type board_num: int
+    :param read_write_cmd: Read or write command.
+    :type read_write_cmd: int
+    """
     board_addr_pattern = (board_num << 1) & 0xE  # 1 -> 0b0010, 3 -> 0b0110
     rw_cmd_pattern = read_write_cmd & 1  # make sure it's just 1 bit long
     return 0x40 | board_addr_pattern | rw_cmd_pattern
 
 
 def read(address, board_num=0):
-    """Returns the value of the address specified."""
+    """Returns the value of the address specified.
+
+    :param address: The address to read from.
+    :type address: int
+    :param board_num: The board number to read from.
+    :type board_num: int
+    """
     devopcode = __get_device_opcode(board_num, READ_CMD)
     op, addr, data = spisend((devopcode, address, 0))  # data byte is not used
     return data
 
 
 def write(data, address, board_num=0):
-    """Writes data to the address specified."""
+    """Writes data to the address specified.
+
+    :param data: The data to write.
+    :type data: int
+    :param address: The address to write to.
+    :type address: int
+    :param board_num: The board number to write to.
+    :type board_num: int
+    """
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
     op, addr, data = spisend((devopcode, address, data))
 
@@ -326,6 +370,8 @@ def write(data, address, board_num=0):
 def spisend(bytes_to_send):
     """Sends bytes via the SPI bus.
 
+    :param bytes_to_send: The bytes to send on the SPI device.
+    :type bytes_to_send: list
     :returns: bytes -- returned bytes from SPI device
     :raises: InitError
     """
@@ -351,7 +397,11 @@ def spisend(bytes_to_send):
 
 
 def sleep_microseconds(microseconds):
-    """Sleeps for the given number of microseconds."""
+    """Sleeps for the given number of microseconds.
+
+    :param microseconds: Number of microseconds to sleep for.
+    :type microseconds: int
+    """
     # divide microseconds by 1 million for seconds
     seconds = microseconds / float(1000000)
     time.sleep(seconds)
