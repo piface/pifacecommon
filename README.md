@@ -26,3 +26,13 @@ Examples
     >>> pifacecommon.write(0xAA, pifacecommon.GPIOA)
     >>> pifacecommon.read(pifacecommon.GPIOA)
     0xAA
+
+Building and Viewing Documentation
+==================================
+
+    $ cd docs/
+    $ make html
+    $ cd _build/html/
+    $ python3 -m http.server
+
+Open a browser and go to http://localhost:8000.
