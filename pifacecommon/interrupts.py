@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Provides interrupt logic for interfacing with PiFace Products
 Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
 
@@ -52,29 +51,39 @@ FILE_IO_TIMEOUT = 1
 class InputFunctionMap(list):
     """Maps inputs pins to functions.
 
-    Use the register method to map inputs to functions.
+    .. note:: Extends :py:class:`list`
 
-    Each function is passed the interrupt bit map as a byte and the input
-    port as a byte. The return value of the function specifies whether the
-    wait_for_input loop should continue (True is continue).
-
-    Register Parameters (*optional):
-    input_num  - input pin number
-    direction  - direction of change
-                     IN_EVENT_DIR_ON
-                     IN_EVENT_DIR_OFF
-                     IN_EVENT_DIR_BOTH
-    callback   - function to run when interrupt is detected
-    board_num* - what PiFace digital board to check
-
-    Example:
-    def my_callback(interrupt_flag_bit, input_byte):
-         # if interrupt_flag_bit = 0b00001000: pin 3 caused the interrupt
-         # if input_byte = 0b10110111: pins 6 and 3 activated
-        print(bin(interrupted_bit), bin(input_byte))
-        return True  # keep waiting for interrupts
+    Each callback is passed the flag bit map (1 byte) and the input port
+    (1 byte) state at the time of the interrupt. The return value of the
+    function specifies whether the wait_for_input loop should continue
+    (True is continue).
     """
     def register(self, input_num, direction, callback, board_num=0):
+        """Registers an input number and direction to a callback function.
+
+        :param input_num: The input pin number.
+        :type input_num: int
+        :param direction: The direction of change (use: IN_EVENT_DIR_ON or
+            IN_EVENT_DIR_OFF or IN_EVENT_DIR_BOTH)
+        :type direction: int
+        :param callback: The function to run when interrupt is detected.
+            Function should return True if you want to keep waiting for
+            interrupts.
+        :type callback: function
+        :param board_num: PiFace digital board number (default: 0).
+        :type board_num: int
+
+        >>> def print_flag(flag, port):
+        ...     print(flag)
+        ...     return True  # keep waiting
+        ...
+        >>> ifm = pifacecommon.interrupts.InputFunctionMap()
+        >>> ifm.register(
+        ...     input_num=0,
+        ...     direction=pifacecommon.interrupts.IN_EVENT_DIR_ON,
+        ...     callback=print_flag
+        ... )
+        """
         self.append({
             'input_num': input_num,
             'direction': direction,
@@ -85,13 +94,15 @@ class InputFunctionMap(list):
 
 # interrupts
 def wait_for_interrupt(port, input_func_map=None, timeout=None):
-    """Waits for an port event (change)
+    """Waits for an port event (change) and runs the callback function tied to
+    that.
 
-    Paramaters:
-    port           - What port are we waiting for interrupts on? GPIOA or B?
-    input_func_map - An InputFunctionMap object describing callbacks
-    timeout        - How long we should wait before giving up and exiting the
-                     function
+    :param port: The port we are waiting for interrupts on (GPIOA/GPIOB).
+    :type port: int
+    :param input_func_map: An InputFunctionMap object describing callbacks.
+    :type input_func_map: :class:`InputFunctionMap`
+    :param timeout: How long we should wait before giving up.
+    :type timeout: int
     """
     enable_interrupts(port)
 
@@ -188,7 +199,7 @@ def _call_mapped_input_functions(port, input_func_map):
 # tp - don't know if this is needed.
 def clear_interrupts(port):
     """Clears the interrupt flags by 'read'ing the capture register
-    on all boards
+    on all boards.
     """
     intcap = INTCAPA if port == GPIOA else INTCAPB
     for i in range(MAX_BOARDS):

@@ -78,7 +78,7 @@ spidev_fd = None
 
 
 class DigitalPort(object):
-    """A port on a PiFace Digital product"""
+    """A digital port on a PiFace product."""
     __metaclass__ = ABCMeta
 
     def __init__(self, port, board_num=0):
@@ -92,48 +92,51 @@ class DigitalPort(object):
 
     @property
     def handler(self):
+        """The module that handles this port (can be useful for
+        emulator/testing).
+        """
         return sys.modules[__name__]
 
-
-class DigitalInputPort(DigitalPort):
-    """An input port on a PiFace Digital product"""
-    def __init__(self, port, board_num=0):
-        super().__init__(port, board_num)
-
     @property
     def value(self):
+        """The value of the digital port."""
         return 0xFF ^ self.handler.read(self.port, self.board_num)
-
-    @value.setter
-    def value(self, data):
-        raise InputDeviceError("You cannot set an input's values!")
-
-
-class DigitalOutputPort(DigitalPort):
-    """An output port on a PiFace Digital product"""
-    def __init__(self, port, board_num=0):
-        super().__init__(port, board_num)
-
-    @property
-    def value(self):
-        return self.handler.read(self.port, self.board_num)
 
     @value.setter
     def value(self, data):
         return self.handler.write(data, self.port, self.board_num)
 
+
+class DigitalInputPort(DigitalPort):
+    """An digital input port on a PiFace product."""
+    def __init__(self, port, board_num=0):
+        super().__init__(port, board_num)
+
+    @DigitalPort.value.setter
+    def value(self, data):
+        raise InputDeviceError("You cannot set an input's values!")
+
+
+class DigitalOutputPort(DigitalPort):
+    """An digital output port on a PiFace product"""
+    def __init__(self, port, board_num=0):
+        super().__init__(port, board_num)
+
     def all_on(self):
+        """Turns all outputs on."""
         self.value = 0xFF
 
     def all_off(self):
+        """Turns all outputs off."""
         self.value = 0
 
     def toggle(self):
+        """Toggles all outputs."""
         self.value = 0xFF ^ self.value
 
 
 class DigitalItem(DigitalPort):
-    """An item connected to a pin on a PiFace Digital product.
+    """A digital item connected to a pin on a PiFace product.
     Has most of the same properties of a Digital Port.
     """
     __metaclass__ = ABCMeta
@@ -142,31 +145,9 @@ class DigitalItem(DigitalPort):
         super().__init__(port, board_num)
         self.pin_num = pin_num
 
-
-class DigitalInputItem(DigitalItem):
-    """An input connected to a pin a PiFace Digital product"""
-    def __init__(self, pin_num, port, board_num=0):
-        super().__init__(pin_num, port, board_num)
-
     @property
     def value(self):
-        return 1 ^ self.handler.read_bit(
-            self.pin_num,
-            self.port,
-            self.board_num)
-
-    @value.setter
-    def value(self, data):
-        raise InputDeviceError("You cannot set an input's values!")
-
-
-class DigitalOutputItem(DigitalItem):
-    """An output connected to a pin a PiFace Digital product"""
-    def __init__(self, pin_num, port, board_num=0):
-        super().__init__(pin_num, port, board_num)
-
-    @property
-    def value(self):
+        """The value of the digital item."""
         return self.handler.read_bit(
             self.pin_num,
             self.port,
@@ -180,13 +161,38 @@ class DigitalOutputItem(DigitalItem):
             self.port,
             self.board_num)
 
+
+class DigitalInputItem(DigitalItem):
+    """An digital input connected to a pin a PiFace product."""
+    def __init__(self, pin_num, port, board_num=0):
+        super().__init__(pin_num, port, board_num)
+
+    @property
+    def value(self):
+        """The inverse value of the digital input item (inputs are active low).
+        """
+        return 1 ^ DigitalItem.value
+
+    @value.setter
+    def value(self, data):
+        raise InputDeviceError("You cannot set an input's values!")
+
+
+class DigitalOutputItem(DigitalItem):
+    """An output connected to a pin a PiFace Digital product."""
+    def __init__(self, pin_num, port, board_num=0):
+        super().__init__(pin_num, port, board_num)
+
     def turn_on(self):
+        """Sets the digital output item's value to 1."""
         self.value = 1
 
     def turn_off(self):
+        """Sets the digital output item's value to 0."""
         self.value = 0
 
     def toggle(self):
+        """Toggles the digital output item's value."""
         self.value = not self.value
 
 
@@ -204,7 +210,10 @@ class _spi_ioc_transfer(ctypes.Structure):
 
 
 def init(bus=0, chip_select=0):
-    """Initialises the PiFace Digital board"""
+    """Initialises the SPI device file descriptor.
+
+    :raises: InitError
+    """
     spi_device = "%s%d.%d" % (SPIDEV, bus, chip_select)
     global spidev_fd
     try:
@@ -217,7 +226,7 @@ def init(bus=0, chip_select=0):
 
 
 def deinit():
-    """Closes the spidev file descriptor"""
+    """Closes the SPI device file descriptor."""
     global spidev_fd
     if spidev_fd:
         posix.close(spidev_fd)
@@ -225,7 +234,18 @@ def deinit():
 
 
 def get_bit_mask(bit_num):
-    """Translates a pin num to pin bit mask. First pin is pin0."""
+    """Translates a bit num to bit mask.
+
+    :returns: int -- the bit mask
+    :raises: RangeError
+
+    >>> pifacecommon.core.get_bit_mask(0)
+    1
+    >>> pifacecommon.core.get_bit_mask(1)
+    2
+    >>> bin(pifacecommon.core.get_bit_mask(3))
+    '0b1000'
+    """
     if bit_num > 7 or bit_num < 0:
         raise RangeError(
             "Specified bit num (%d) out of range (0-7)." % bit_num)
@@ -234,7 +254,22 @@ def get_bit_mask(bit_num):
 
 
 def get_bit_num(bit_pattern):
-    """Returns the lowest pin num from a given bit pattern"""
+    """Returns the lowest bit num from a given bit pattern. Returns None if no
+    bits set.
+
+    :returns: int -- the bit number
+    :returns: None -- no bits set
+
+    >>> pifacecommon.core.get_bit_num(0)
+    None
+    >>> pifacecommon.core.get_bit_num(0b1)
+    0
+    >>> pifacecommon.core.get_bit_num(0b11000)
+    3
+    """
+    if bit_pattern == 0:
+        return None
+
     bit_num = 0  # assume bit 0
     while (bit_pattern & 1) == 0:
         bit_pattern = bit_pattern >> 1
@@ -247,14 +282,17 @@ def get_bit_num(bit_pattern):
 
 
 def read_bit(bit_num, address, board_num=0):
-    """Returns the bit specified from the address"""
+    """Returns the bit specified from the address.
+
+    :returns: int -- the bit value from the address
+    """
     value = read(address, board_num)
     bit_mask = get_bit_mask(bit_num)
     return 1 if value & bit_mask else 0
 
 
 def write_bit(value, bit_num, address, board_num=0):
-    """Writes the value given to the bit specified"""
+    """Writes the value given to the bit in the address specified."""
     bit_mask = get_bit_mask(bit_num)
     old_byte = read(address, board_num)
      # generate the new byte
@@ -266,27 +304,31 @@ def write_bit(value, bit_num, address, board_num=0):
 
 
 def __get_device_opcode(board_num, read_write_cmd):
-    """Returns the device opcode (as a byte)"""
+    """Returns the device opcode (as a byte)."""
     board_addr_pattern = (board_num << 1) & 0xE  # 1 -> 0b0010, 3 -> 0b0110
     rw_cmd_pattern = read_write_cmd & 1  # make sure it's just 1 bit long
     return 0x40 | board_addr_pattern | rw_cmd_pattern
 
 
 def read(address, board_num=0):
-    """Reads from the address specified"""
+    """Returns the value of the address specified."""
     devopcode = __get_device_opcode(board_num, READ_CMD)
     op, addr, data = spisend((devopcode, address, 0))  # data byte is not used
     return data
 
 
 def write(data, address, board_num=0):
-    """Writes data to the address specified"""
+    """Writes data to the address specified."""
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
     op, addr, data = spisend((devopcode, address, data))
 
 
 def spisend(bytes_to_send):
-    """Sends bytes via the SPI bus"""
+    """Sends bytes via the SPI bus.
+
+    :returns: bytes -- returned bytes from SPI device
+    :raises: InitError
+    """
     global spidev_fd
     if spidev_fd is None:
         raise InitError("Before spisend(), call init().")
@@ -309,6 +351,7 @@ def spisend(bytes_to_send):
 
 
 def sleep_microseconds(microseconds):
+    """Sleeps for the given number of microseconds."""
     # divide microseconds by 1 million for seconds
     seconds = microseconds / float(1000000)
     time.sleep(seconds)

@@ -7,6 +7,7 @@ setup(
     description='The PiFace common functions module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
+    license='GPLv3+',
     url='https://github.com/piface/pifacecommon',
     packages=['pifacecommon'],
     long_description="pifacecommon provides common classes, functions and "
@@ -20,5 +21,4 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='piface raspberrypi openlx',
-    license='GPLv3+',
 )
