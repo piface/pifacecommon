@@ -100,7 +100,7 @@ class DigitalPort(object):
     @property
     def value(self):
         """The value of the digital port."""
-        return 0xFF ^ self.handler.read(self.port, self.board_num)
+        return self.handler.read(self.port, self.board_num)
 
     @value.setter
     def value(self, data):
@@ -111,6 +111,11 @@ class DigitalInputPort(DigitalPort):
     """An digital input port on a PiFace product."""
     def __init__(self, port, board_num=0):
         super().__init__(port, board_num)
+
+    @property
+    def value(self):
+        """The value of the digital port."""
+        return 0xFF ^ super().value
 
     @DigitalPort.value.setter
     def value(self, data):
@@ -171,7 +176,7 @@ class DigitalInputItem(DigitalItem):
     def value(self):
         """The inverse value of the digital input item (inputs are active low).
         """
-        return 1 ^ DigitalItem.value
+        return 1 ^ super().value
 
     @value.setter
     def value(self, data):
