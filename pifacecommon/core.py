@@ -23,7 +23,6 @@ import time
 from abc import ABCMeta
 from fcntl import ioctl
 from .asm_generic_ioctl import _IOW
-from .errors import (RangeError, InitError, InputDeviceError)
 
 
 MAX_BOARDS = 4
@@ -77,6 +76,18 @@ SPI_HELP_LINK = \
 spidev_fd = None
 
 
+class RangeError(Exception):
+    pass
+
+
+class InitError(Exception):
+    pass
+
+
+class InputDeviceError(Exception):
+    pass
+
+
 class DigitalPort(object):
     """A digital port on a PiFace product."""
     __metaclass__ = ABCMeta
@@ -115,7 +126,7 @@ class DigitalInputPort(DigitalPort):
     @property
     def value(self):
         """The value of the digital port."""
-        return 0xFF ^ super().value
+        return super().value
 
     @DigitalPort.value.setter
     def value(self, data):
