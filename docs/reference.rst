@@ -17,9 +17,3 @@ Interrupts
 **********
 .. automodule:: pifacecommon.interrupts
    :members:
-
-******
-Errors
-******
-.. automodule:: pifacecommon.errors
-   :members:

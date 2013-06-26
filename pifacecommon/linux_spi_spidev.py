@@ -1,6 +1,6 @@
 # Converted from <linux/spi/spidev.h>
 import ctypes
-from asm_generic_ioctl import _IOR, _IOW, _IOC_SIZEBITS
+from .asm_generic_ioctl import _IOR, _IOW, _IOC_SIZEBITS
 
 SPI_CPHA = 0x01
 SPI_CPOL = 0x02

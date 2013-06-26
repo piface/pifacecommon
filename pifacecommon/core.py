@@ -117,7 +117,16 @@ class DigitalPort(object):
 
 
 class DigitalInputPort(DigitalPort):
-    """An digital input port on a PiFace product."""
+    """An digital input port on a PiFace product.
+
+    .. note:: This hides the fact that inputs are active low.
+
+       >>> input_port = pifacecommon.core.GPIOB
+       >>> hex(pifacecommon.core.read(input_port))
+       '0xFF'
+       >>> hex(pifacecommon.core.DigitalInputPort(input_port).value)
+       '0x00'
+    """
     def __init__(self, port, board_num=0):
         super().__init__(port, board_num)
 
@@ -178,7 +187,16 @@ class DigitalItem(DigitalPort):
 
 
 class DigitalInputItem(DigitalItem):
-    """An digital input connected to a pin a PiFace product."""
+    """An digital input connected to a pin a PiFace product.
+
+    .. note:: This hides the fact that inputs are active low.
+
+       >>> input_port = pifacecommon.core.GPIOB
+       >>> pifacecommon.core.read_bit(0, input_port)
+       1
+       >>> hex(pifacecommon.core.DigitalInputItem(0, input_port).value)
+       0
+    """
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
 
