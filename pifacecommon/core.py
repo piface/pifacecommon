@@ -22,7 +22,7 @@ import posix
 import time
 from abc import ABCMeta
 from fcntl import ioctl
-from .asm_generic_ioctl import _IOW
+from .linux_spi_spidev import spi_ioc_transfer, SPI_IOC_MESSAGE
 
 
 MAX_BOARDS = 4
@@ -66,8 +66,6 @@ ODR_ON = 0x04  # open drain for interupts
 ODR_OFF = 0x00
 INTPOL_HIGH = 0x02  # interupt polarity
 INTPOL_LOW = 0x00
-
-SPI_IOC_MAGIC = 107
 
 SPIDEV = '/dev/spidev'
 SPI_HELP_LINK = \
@@ -123,12 +121,13 @@ class DigitalInputPort(DigitalPort):
     def __init__(self, port, board_num=0):
         super().__init__(port, board_num)
 
+    # redefine value property for input
     @property
     def value(self):
-        """The value of the digital port."""
-        return super().value
+        """The value of the digital input port."""
+        return 0xFF ^ self.handler.read(self.port, self.board_num)
 
-    @DigitalPort.value.setter
+    @value.setter
     def value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
 
@@ -183,11 +182,15 @@ class DigitalInputItem(DigitalItem):
     def __init__(self, pin_num, port, board_num=0):
         super().__init__(pin_num, port, board_num)
 
+    # redefine value property for input
     @property
     def value(self):
         """The inverse value of the digital input item (inputs are active low).
         """
-        return 1 ^ super().value
+        return 1 ^ self.handler.read_bit(
+            self.pin_num,
+            self.port,
+            self.board_num)
 
     @value.setter
     def value(self, data):
@@ -210,19 +213,6 @@ class DigitalOutputItem(DigitalItem):
     def toggle(self):
         """Toggles the digital output item's value."""
         self.value = not self.value
-
-
-class _spi_ioc_transfer(ctypes.Structure):
-    """SPI ioc transfer structure (from linux/spi/spidev.h)"""
-    _fields_ = [
-        ("tx_buf", ctypes.c_uint64),
-        ("rx_buf", ctypes.c_uint64),
-        ("len", ctypes.c_uint32),
-        ("speed_hz", ctypes.c_uint32),
-        ("delay_usecs", ctypes.c_uint16),
-        ("bits_per_word", ctypes.c_uint8),
-        ("cs_change", ctypes.c_uint8),
-        ("pad", ctypes.c_uint32)]
 
 
 def init(bus=0, chip_select=0):
@@ -365,7 +355,7 @@ def read(address, board_num=0):
     :type board_num: int
     """
     devopcode = __get_device_opcode(board_num, READ_CMD)
-    op, addr, data = spisend((devopcode, address, 0))  # data byte is not used
+    op, addr, data = spisend(bytes((devopcode, address, 0)))
     return data
 
 
@@ -380,14 +370,14 @@ def write(data, address, board_num=0):
     :type board_num: int
     """
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
-    op, addr, data = spisend((devopcode, address, data))
+    op, addr, data = spisend(bytes((devopcode, address, data)))
 
 
 def spisend(bytes_to_send):
     """Sends bytes via the SPI bus.
 
     :param bytes_to_send: The bytes to send on the SPI device.
-    :type bytes_to_send: list
+    :type bytes_to_send: bytes
     :returns: bytes -- returned bytes from SPI device
     :raises: InitError
     """
@@ -395,20 +385,19 @@ def spisend(bytes_to_send):
     if spidev_fd is None:
         raise InitError("Before spisend(), call init().")
 
-     # make some buffer space to store reading/writing
-    write_bytes = bytes(bytes_to_send)
-    wbuffer = ctypes.create_string_buffer(write_bytes, len(write_bytes))
+    # make some buffer space to store reading/writing
+    wbuffer = ctypes.create_string_buffer(bytes_to_send, len(bytes_to_send))
     rbuffer = ctypes.create_string_buffer(len(bytes_to_send))
 
-     # create the spi transfer struct
-    transfer = _spi_ioc_transfer(
+    # create the spi transfer struct
+    transfer = spi_ioc_transfer(
         tx_buf=ctypes.addressof(wbuffer),
         rx_buf=ctypes.addressof(rbuffer),
-        len=ctypes.sizeof(wbuffer))
+        len=ctypes.sizeof(wbuffer)
+    )
 
-     # send the spi command (with a little help from asm-generic
-    iomsg = _IOW(SPI_IOC_MAGIC, 0, ctypes.c_char * ctypes.sizeof(transfer))
-    ioctl(spidev_fd, iomsg, ctypes.addressof(transfer))
+    # send the spi command
+    ioctl(spidev_fd, SPI_IOC_MESSAGE(1), transfer)
     return ctypes.string_at(rbuffer, ctypes.sizeof(rbuffer))
 
 
