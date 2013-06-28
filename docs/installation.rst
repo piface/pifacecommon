@@ -8,7 +8,7 @@ To install pifacecommon with minimal fuss::
 
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon
-    $ sudo ./install.sh
+    $ sudo python3 setup.py install
 
 Then reboot.
 
@@ -16,7 +16,6 @@ You can also get pifacecommon from PyPi::
 
     $ sudo easy_install3 pifacecommon
 
-But you'll have to sort out the SPI and GPIO stuff yourself.
 
 The Slow Way
 ============
@@ -53,4 +52,7 @@ Download and install with::
 
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon/
+
+Edit the setup.py file so that MODULE_ONLY is True. Then run::
+
     $ sudo python3 setup.py install
