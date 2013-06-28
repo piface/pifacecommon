@@ -50,7 +50,7 @@ if "install" in sys.argv and not MODULE_ONLY:
 
 setup(
     name='pifacecommon',
-    version='1.1',
+    version='1.2',
     description='The PiFace common functions module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
