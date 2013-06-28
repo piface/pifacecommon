@@ -14,4 +14,4 @@ Installation
 Documentation
 =============
 
-[piface.github.io/pifacecommon/](piface.github.io/pifacecommon/)
+[http://piface.github.io/pifacecommon/](http://piface.github.io/pifacecommon/)
