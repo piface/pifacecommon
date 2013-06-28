@@ -4,35 +4,14 @@ pifacecommon
 Common functions for interacting with PiFace products. Also available from 
 [PyPI](https://pypi.python.org/pypi/pifacecommon/)
 
-Auto Installation
+Installation
 =================
-### GitHub
 
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon
-    $ sudo ./install.sh
+    $ sudo python3 setup.py install
 
-### PyPI
-(You will have to set up SPI stuff manually if this is your first time)
+Documentation
+=============
 
-    $ sudo easy_install3 pifacecommon
-
-Examples
-========
-
-    $ python3
-    >>> import pifacecommon
-    >>> pifacecommon.init()
-    >>> pifacecommon.write(0xAA, pifacecommon.GPIOA)
-    >>> pifacecommon.read(pifacecommon.GPIOA)
-    0xAA
-
-Building and Viewing Documentation
-==================================
-
-    $ cd docs/
-    $ make html
-    $ cd _build/html/
-    $ python3 -m http.server
-
-Open a browser and go to http://localhost:8000.
+[piface.github.io/pifacecommon/](piface.github.io/pifacecommon/)
