@@ -36,8 +36,6 @@ def setup_gpio():
     run_cmd(SETUP_GPIO_CMD, "Could not set up GPIO.")
 
 
-# Install everything: sudo python3 setup.py install
-# Install module only: sudo python3 setup.py install module_only
 if "install" in sys.argv and not MODULE_ONLY:
     try:
         setup_spi()
