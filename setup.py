@@ -38,13 +38,8 @@ def setup_gpio():
 
 
 if "install" in sys.argv and not MODULE_ONLY:
-    try:
-        setup_spi()
-        setup_gpio()
-    except IOError as e:
-        if (e[0] == errno.EPERM):
-            sys.stderr.write("Install script must be run as root.")
-            sys.exit(1)
+    setup_spi()
+    setup_gpio()
 
 
 setup(

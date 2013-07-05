@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import multiprocessing
 import select
 import time
 from .core import (
@@ -33,9 +34,9 @@ from .core import (
 
 
 # interrupts
-IN_EVENT_DIR_ON = 0
-IN_EVENT_DIR_OFF = 1
-IN_EVENT_DIR_BOTH = None
+IN_EVENT_DIR_ON = INPUT_DIRECTION_ON = 0
+IN_EVENT_DIR_OFF = INPUT_DIRECTION_OFF = 1
+IN_EVENT_DIR_BOTH = INPUT_DIRECTION_BOTH = None
 
 GPIO_INTERRUPT_PIN = 25
 GPIO_INTERRUPT_DEVICE = "/sys/devices/virtual/gpio/gpio%d" % GPIO_INTERRUPT_PIN
@@ -48,6 +49,8 @@ GPIO_UNEXPORT_FILE = "/sys/class/gpio/unexport"
 FILE_IO_TIMEOUT = 1
 
 
+# needs a name change to:
+# PortEventFunctionMap, PortEventActionMap
 class InputFunctionMap(list):
     """Maps inputs pins to functions.
 
@@ -90,6 +93,15 @@ class InputFunctionMap(list):
             'callback': callback,
             'board_num': board_num,
         })
+
+    def activate(self):
+        self.process = multiprocessing.Process(
+            target=wait_for_interrupt,
+            args=(port, input_func_map, timeout))
+        process.start()
+
+    def deactivate(self):
+        self.process.terminate()  # BAD should send message in queue
 
 
 # interrupts
