@@ -20,7 +20,6 @@ import sys
 import ctypes
 import posix
 import time
-from abc import ABCMeta
 from fcntl import ioctl
 from .linux_spi_spidev import spi_ioc_transfer, SPI_IOC_MESSAGE
 
@@ -88,7 +87,6 @@ class InputDeviceError(Exception):
 
 class DigitalPort(object):
     """A digital port on a PiFace product."""
-    __metaclass__ = ABCMeta
 
     def __init__(self, port, board_num=0):
         self.port = port
@@ -128,7 +126,7 @@ class DigitalInputPort(DigitalPort):
        '0x00'
     """
     def __init__(self, port, board_num=0):
-        super().__init__(port, board_num)
+        super(DigitalInputPort, self).__init__(port, board_num)
 
     # redefine value property for input
     @property
@@ -144,7 +142,7 @@ class DigitalInputPort(DigitalPort):
 class DigitalOutputPort(DigitalPort):
     """An digital output port on a PiFace product"""
     def __init__(self, port, board_num=0):
-        super().__init__(port, board_num)
+        super(DigitalOutputPort, self).__init__(port, board_num)
 
     def all_on(self):
         """Turns all outputs on."""
@@ -163,10 +161,9 @@ class DigitalItem(DigitalPort):
     """A digital item connected to a pin on a PiFace product.
     Has most of the same properties of a Digital Port.
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, pin_num, port, board_num=0):
-        super().__init__(port, board_num)
+        super(DigitalItem, self).__init__(port, board_num)
         self.pin_num = pin_num
 
     @property
@@ -198,7 +195,7 @@ class DigitalInputItem(DigitalItem):
        0
     """
     def __init__(self, pin_num, port, board_num=0):
-        super().__init__(pin_num, port, board_num)
+        super(DigitalInputItem, self).__init__(pin_num, port, board_num)
 
     # redefine value property for input
     @property
@@ -218,7 +215,7 @@ class DigitalInputItem(DigitalItem):
 class DigitalOutputItem(DigitalItem):
     """An output connected to a pin a PiFace Digital product."""
     def __init__(self, pin_num, port, board_num=0):
-        super().__init__(pin_num, port, board_num)
+        super(DigitalOutputItem, self).__init__(pin_num, port, board_num)
 
     def turn_on(self):
         """Sets the digital output item's value to 1."""
@@ -250,7 +247,7 @@ def init(bus=0, chip_select=0):
         raise InitError(
             "I can't see %s. Have you enabled the SPI module? (%s)"
             % (spi_device, SPI_HELP_LINK)
-        ) from e
+        )  # from e  # from is only available in Python 3
 
 
 def deinit():
@@ -372,9 +369,19 @@ def read(address, board_num=0):
     :param board_num: The board number to read from.
     :type board_num: int
     """
+    return _pyver_read(address, board_num)
+
+
+def _py3read(address, board_num):
     devopcode = __get_device_opcode(board_num, READ_CMD)
     op, addr, data = spisend(bytes((devopcode, address, 0)))
     return data
+
+
+def _py2read(address, board_num):
+    devopcode = __get_device_opcode(board_num, READ_CMD)
+    op, addr, data = spisend(chr(devopcode)+chr(address)+chr(0))
+    return ord(data)
 
 
 def write(data, address, board_num=0):
@@ -387,8 +394,23 @@ def write(data, address, board_num=0):
     :param board_num: The board number to write to.
     :type board_num: int
     """
+    _pyver_write(data, address, board_num)
+
+
+def _py3write(data, address, board_num):
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
-    op, addr, data = spisend(bytes((devopcode, address, data)))
+    spisend(bytes((devopcode, address, data)))
+
+
+def _py2write(data, address, board_num):
+    devopcode = __get_device_opcode(board_num, WRITE_CMD)
+    spisend(chr(devopcode)+chr(address)+chr(data))
+
+
+# Python 2 support
+PY3 = sys.version_info.major >= 3
+_pyver_read = _py3read if PY3 else _py2read
+_pyver_write = _py3write if PY3 else _py2write
 
 
 def spisend(bytes_to_send):
@@ -406,6 +428,7 @@ def spisend(bytes_to_send):
     # make some buffer space to store reading/writing
     wbuffer = ctypes.create_string_buffer(bytes_to_send, len(bytes_to_send))
     rbuffer = ctypes.create_string_buffer(len(bytes_to_send))
+    #rbuffer = ctypes.create_string_buffer(size=len(bytes_to_send)) should be
 
     # create the spi transfer struct
     transfer = spi_ioc_transfer(

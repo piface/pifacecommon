@@ -6,13 +6,9 @@
 Welcome to PiFace Common's documentation!
 =========================================
 
-The pifacecommon Python3 module is required for all PiFace extensions. It
+The pifacecommon Python module is required for all PiFace extensions. It
 provides functions and classes for generic interfacing with the boards over
 SPI.
-
-.. note:: This module was built as a library to be used by other modules. It
-   was never intended to be used by the end user. It works great for
-   debugging though!
 
 Links:
     - `Blog <http://pifacedigital.wordpress.com/>`_
