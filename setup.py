@@ -55,12 +55,12 @@ setup(
     license='GPLv3+',
     url='https://github.com/piface/pifacecommon',
     packages=['pifacecommon'],
-    long_description="pifacecommon provides common classes, functions and "
-        "variables to various piface related modules.",
+    long_description=open('README.md').read() + open('CHANGELOG').read(),
     classifiers=[
         "License :: OSI Approved :: GNU Affero General Public License v3 or "
         "later (AGPLv3+)",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2",
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
