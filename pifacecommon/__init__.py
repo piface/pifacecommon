@@ -15,83 +15,77 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
+# import sys
 
 # constants
-from .core import (
-    MAX_BOARDS,
-    IODIRA,
-    IODIRB,
-    IPOLA,
-    IPOLB,
-    GPINTENA,
-    GPINTENB,
-    DEFVALA,
-    DEFVALB,
-    INTCONA,
-    INTCONB,
-    IOCON,
-    GPPUA,
-    GPPUB,
-    INTFA,
-    INTFB,
-    INTCAPA,
-    INTCAPB,
-    GPIOA,
-    GPIOB,
-    BANK_OFF,
-    BANK_ON,
-    INT_MIRROR_ON,
-    INT_MIRROR_OFF,
-    SEQOP_OFF,
-    SEQOP_ON,
-    DISSLW_ON,
-    DISSLW_OFF,
-    HAEN_ON,
-    HAEN_OFF,
-    ODR_ON,
-    ODR_OFF,
-    INTPOL_HIGH,
-    INTPOL_LOW,
-)
-
-from .interrupts import (
-    IN_EVENT_DIR_ON,
-    IN_EVENT_DIR_OFF,
-    IN_EVENT_DIR_BOTH,
-)
+# from .core import (
+#     MAX_BOARDS,
+#     IODIRA,
+#     IODIRB,
+#     IPOLA,
+#     IPOLB,
+#     GPINTENA,
+#     GPINTENB,
+#     DEFVALA,
+#     DEFVALB,
+#     INTCONA,
+#     INTCONB,
+#     IOCON,
+#     GPPUA,
+#     GPPUB,
+#     INTFA,
+#     INTFB,
+#     INTCAPA,
+#     INTCAPB,
+#     GPIOA,
+#     GPIOB,
+#     BANK_OFF,
+#     BANK_ON,
+#     INT_MIRROR_ON,
+#     INT_MIRROR_OFF,
+#     SEQOP_OFF,
+#     SEQOP_ON,
+#     DISSLW_ON,
+#     DISSLW_OFF,
+#     HAEN_ON,
+#     HAEN_OFF,
+#     ODR_ON,
+#     ODR_OFF,
+#     INTPOL_HIGH,
+#     INTPOL_LOW,
+# )
 
 # classes
-from .core import (
-    DigitalPort,
-    DigitalInputPort,
-    DigitalOutputPort,
-    DigitalItem,
-    DigitalInputItem,
-    DigitalOutputItem,
-)
+# from .core import (
+#     DigitalPort,
+#     DigitalInputPort,
+#     DigitalOutputPort,
+#     DigitalItem,
+#     DigitalInputItem,
+#     DigitalOutputItem,
+# )
 
-from .interrupts import (
-    InputFunctionMap,
-)
+# from .interrupts import (
+#     InputFunctionMap,
+# )
 
 # functions
-from .core import (
-    init,
-    deinit,
-    get_bit_mask,
-    get_bit_num,
-    read_bit,
-    write_bit,
-    read,
-    write,
-    spisend,
-    sleep_microseconds,
-)
+# from .core import (
+#     init,
+#     deinit,
+#     get_bit_mask,
+#     get_bit_num,
+#     read_bit,
+#     write_bit,
+#     read,
+#     write,
+#     spisend,
+#     sleep_microseconds,
+# )
 
-from .interrupts import (
-    wait_for_interrupt,
-    clear_interrupts,
-    enable_interrupts,
-    disable_interrupts,
-)
+# from .interrupts import (
+#     wait_for_interrupt,
+#     clear_interrupts,
+#     enable_interrupts,
+#     disable_interrupts,
+# )

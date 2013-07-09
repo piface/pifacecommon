@@ -1,8 +1,13 @@
 Change Log
 ==========
 
+v2.0.0
+------
+- Improved interrupts (different API, check the docs).
+- Reduced scope of some variables from package to modules.
+
 v1.2.1
-----
+------
 - Supports Python 2.
 - Started using semantic versioning http://semver.org/.
 

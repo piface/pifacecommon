@@ -1,19 +1,4 @@
-"""Provides interrupt logic for interfacing with PiFace Products
-Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+import threading
 import multiprocessing
 import select
 import time
@@ -34,9 +19,11 @@ from .core import (
 
 
 # interrupts
-IN_EVENT_DIR_ON = INPUT_DIRECTION_ON = 0
-IN_EVENT_DIR_OFF = INPUT_DIRECTION_OFF = 1
-IN_EVENT_DIR_BOTH = INPUT_DIRECTION_BOTH = None
+IODIR_ON = 0
+IODIR_OFF = 1
+IODIR_BOTH = None
+# IN_EVENT_DIR_OFF = INPUT_DIRECTION_OFF = 1
+# IN_EVENT_DIR_BOTH = INPUT_DIRECTION_BOTH = None
 
 GPIO_INTERRUPT_PIN = 25
 GPIO_INTERRUPT_DEVICE = "/sys/devices/virtual/gpio/gpio%d" % GPIO_INTERRUPT_PIN
@@ -49,166 +36,156 @@ GPIO_UNEXPORT_FILE = "/sys/class/gpio/unexport"
 FILE_IO_TIMEOUT = 1
 
 
-# needs a name change to:
-# PortEventFunctionMap, PortEventActionMap
-class InputFunctionMap(list):
-    """Maps inputs pins to functions.
+class InterruptEvent(object):
+    """An interrupt event."""
+    def __init__(self, interrupt_flag, interrupt_capture):
+        self.interrupt_flag = interrupt_flag
+        self.interrupt_capture = interrupt_capture
 
-    .. note:: Extends :py:class:`list`
+    @property
+    def pin_num(self):
+        return get_bit_num(self.interrupt_flag)
 
-    Each callback is passed the flag bit map (1 byte) and the input port
-    (1 byte) state at the time of the interrupt. The return value of the
-    function specifies whether the wait_for_input loop should continue
-    (True is continue).
+    @property
+    def direction(self):
+        return (self.interrupt_flag & self.interrupt_capture) >> self.pin_num
+
+
+class FunctionMap(object):
+    """Maps an IO pin and a direction to callback function."""
+    def __init__(self, pin_num, direction, callback):
+        self.pin_num = pin_num
+        self.direction = direction
+        self.callback = callback
+
+
+class PortEventListener(object):
+    """Listens for port events and calls the registered functions.
+
+    >>> def print_flag(event):
+    ...     print(event.interrupt_flag)
+    ...
+    >>> port = pifacecommon.core.GPIOA
+    >>> listener = pifacecommon.interrupts.PortEventListener(port)
+    >>> listener.register(0, pifacecommon.interrupts.IODIR_ON, print_flag)
+    >>> listener.activate()
     """
-    def register(self, input_num, direction, callback, board_num=0):
-        """Registers an input number and direction to a callback function.
 
-        :param input_num: The input pin number.
-        :type input_num: int
-        :param direction: The direction of change (use: IN_EVENT_DIR_ON or
-            IN_EVENT_DIR_OFF or IN_EVENT_DIR_BOTH)
+    TERMINATE_SIGNAL = "astalavista"
+
+    def __init__(self, port, board_num=0):
+        self.port = port
+        self.board_num = 0
+        self.function_maps = list()
+        self.event_queue = multiprocessing.Queue()
+        self.detector = multiprocessing.Process(
+            target=watch_port_events, args=(self.port, self.event_queue))
+        self.dispatcher = threading.Thread(
+            target=handle_events, args=(self.function_maps, self.event_queue))
+
+    def register(self, pin_num, direction, callback):
+        """Registers a pin number and direction to a callback function.
+
+        :param pin_num: The pin pin number.
+        :type pin_num: int
+        :param direction: The event direction
+            (use: IODIR_ON/IODIR_OFF/IODIR_BOTH)
         :type direction: int
-        :param callback: The function to run when interrupt is detected.
+        :param callback: The function to run when event is detected.
             Function should return True if you want to keep waiting for
             interrupts.
         :type callback: function
-        :param board_num: PiFace digital board number (default: 0).
-        :type board_num: int
-
-        >>> def print_flag(flag, port):
-        ...     print(flag)
-        ...     return True  # keep waiting
-        ...
-        >>> ifm = pifacecommon.interrupts.InputFunctionMap()
-        >>> ifm.register(
-        ...     input_num=0,
-        ...     direction=pifacecommon.interrupts.IN_EVENT_DIR_ON,
-        ...     callback=print_flag
-        ... )
         """
-        self.append({
-            'input_num': input_num,
-            'direction': direction,
-            'callback': callback,
-            'board_num': board_num,
-        })
+        self.function_maps.append(FunctionMap(pin_num, direction, callback))
 
     def activate(self):
-        self.process = multiprocessing.Process(
-            target=wait_for_interrupt,
-            args=(port, input_func_map, timeout))
-        process.start()
+        """When activated the :class:`PortEventListener` will run callbacks
+        associated with pins/directions.
+        """
+        enable_interrupts(self.port)
+        self.detector.start()
+        self.dispatcher.start()
 
     def deactivate(self):
-        self.process.terminate()  # BAD should send message in queue
+        """When deactivated the :class:`PortEventListener` will not run
+        anything.
+        """
+        self.event_queue.put(self.TERMINATE_SIGNAL)
+        self.dispatcher.join()
+        self.detector.terminate()
+        disable_interrupts(self.port)
 
 
-# interrupts
-def wait_for_interrupt(port, input_func_map=None, timeout=None):
-    """Waits for an port event (change) and runs the callback function tied to
-    that.
+def watch_port_events(port, event_queue):
+    """Waits for a port event. When a port event occurs it is placed onto the
+    event queue.
 
     :param port: The port we are waiting for interrupts on (GPIOA/GPIOB).
     :type port: int
-    :param input_func_map: An InputFunctionMap object describing callbacks.
-    :type input_func_map: :class:`InputFunctionMap`
-    :param timeout: How long we should wait before giving up.
-    :type timeout: int
+    :param event_queue: A queue to put events on.
+    :type event_queue: :py:class:`multiprocessing.Queue`
     """
-    enable_interrupts(port)
-
-    # set up epoll (can't do it in enable_interrupts for some reason)
+    # set up epoll
     gpio25 = open(GPIO_INTERRUPT_DEVICE_VALUE, 'r')
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
 
-    kb_interrupt = None
+    # a bit map showing what caused the interrupt
+    intflag = INTFA if port == GPIOA else INTFB
+    # a snapshot of the port when int occured
+    intcapture = INTCAPA if port == GPIOA else INTCAPB
 
     while True:
         # wait here until input
-        try:
-            events = _wait_for_event(epoll, timeout)
-        except KeyboardInterrupt as k:
-            kb_interrupt = k
-            break
+        events = epoll.poll()
 
-        # if we have some events...
-        if len(events) <= 0:
-            break
-
-        # ...and a map
-        if input_func_map:
-            keep_waiting = _call_mapped_input_functions(port, input_func_map)
-            if not keep_waiting:
+        # find out where the interrupt came from and put it on the event queue
+        for board_i in range(MAX_BOARDS):
+            interrupt_flag = read(intflag, board_i)
+            if interrupt_flag == 0:
+                continue  # The interrupt has not been flagged on this board
+            else:
+                # found it!
+                interrupt_capture = read(intcapture, board_i)
+                event_queue.put(
+                    InterruptEvent(interrupt_flag, interrupt_capture))
                 break
-        else:
-            break  # there is no ifm
 
     epoll.close()
-    disable_interrupts(port)
-
-    # deal with the kb_interrupt here
-    if kb_interrupt is not None:
-        raise kb_interrupt
 
 
-def _wait_for_event(epoll, timeout=None):
-    """Waits for an event on the epoll, returns a list of events
-    This will hang, may throw KeyboardInterrupt
+def handle_events(function_maps, event_queue):
+    """Waits for events on the event queue and calls the registered functions.
+
+    :param function_maps: A list of :class:`FunctionMap`\ s describing what to
+        do with events.
+    :type function_maps: list
+    :param event_queue: A queue to put events on.
+    :type event_queue: :py:class:`multiprocessing.Queue`
     """
-    return epoll.poll(timeout) if timeout else epoll.poll()
+    while True:
+        event = event_queue.get()
+        if event == PortEventListener.TERMINATE_SIGNAL:
+            return
+        # if matching get the callback function, else function is None
+        functions = map(
+            lambda fm: fm.callback
+            if _event_matches_function_map(event, fm) else None,
+            function_maps)
+        # reduce to just the callback functions (remove None)
+        functions = filter(lambda f: f is not None, functions)
+
+        for function in functions:
+            function(event)
 
 
-def _call_mapped_input_functions(port, input_func_map):
-    """Finds which board caused the interrupt and calls the mapped
-    function.
-    Returns whether the wait_for_input function should keep waiting for input
-    """
-    if port == GPIOA:
-        intflag = INTFA
-        intcapture = INTCAPA
-    else:
-        intflag = INTFB
-        intcapture = INTCAPB
-
-    for board_i in range(MAX_BOARDS):
-        this_board_ifm = \
-            [m for m in input_func_map if m['board_num'] == board_i]
-
-        # read the interrupt status of this PiFace board
-        # interrupt bit (int_bit) - bit map showing what caused the interrupt
-        int_flag_bit = read(intflag, board_i)
-
-        if int_flag_bit == 0:
-            continue  # The interrupt has not been flagged on this board
-        int_bit_num = get_bit_num(int_flag_bit)
-
-        # interrupt byte (int_byte) - snapshot of in port when int occured
-        int_byte = read(intcapture, board_i)
-
-        # direction - whether the bit changed into a 1 or a 0
-        direction = (int_flag_bit & int_byte) >> int_bit_num
-
-        # for each mapping (on this board) see if we have a callback
-        for mapping in this_board_ifm:
-            if int_bit_num == mapping['input_num'] and \
-                    (mapping['direction'] is None or
-                        direction == mapping['direction']):
-                # run the callback
-                keep_waiting = mapping['callback'](int_flag_bit, int_byte)
-
-                # stop waiting for interrupts, by default
-                if keep_waiting is None:
-                    keep_waiting = False
-
-                return keep_waiting
-
-    # This event does not have a mapped function, keep waiting
-    return True
+def _event_matches_function_map(event, function_map):
+    pin_match = event.pin_num == function_map.pin_num
+    direction_match = function_map.direction is None
+    direction_match |= event.direction == function_map.direction
+    return pin_match and direction_match
 
 
-# tp - don't know if this is needed.
 def clear_interrupts(port):
     """Clears the interrupt flags by 'read'ing the capture register
     on all boards.
@@ -219,6 +196,12 @@ def clear_interrupts(port):
 
 
 def enable_interrupts(port):
+    """Enables interrupts on the port specified.
+
+    :param port: The port to enable interrupts on
+        (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
+    :type port: int
+    """
     # enable interrupts
     int_enable_port = GPINTENA if port == GPIOA else GPINTENB
     for board_index in range(MAX_BOARDS):
@@ -274,6 +257,12 @@ def _wait_until_file_exists(filename):
 
 
 def disable_interrupts(port):
+    """Disables interrupts on the port specified.
+
+    :param port: The port to enable interrupts on
+        (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
+    :type port: int
+    """
     # neither edge
     with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio25edge:
         gpio25edge.write('none')
