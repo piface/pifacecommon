@@ -5,10 +5,10 @@ Here are some examples of how to use pifacecommon::
 
     $ python3
     >>> import pifacecommon
-    >>> pifacecommon.init()
-    >>> pifacecommon.write(0xAA, pifacecommon.GPIOA)
-    >>> pifacecommon.read(pifacecommon.GPIOA)
+    >>> pifacecommon.core.init()
+    >>> pifacecommon.core.write(0xAA, pifacecommon.core.GPIOA)
+    >>> pifacecommon.core.read(pifacecommon.core.GPIOA)
     0xAA
-    >>> pifacecommon.write_bit(1, 0, pifacecommon.GPIOA)
-    >>> pifacecommon.read_bit(0, pifacecommon.GPIOA)
+    >>> pifacecommon.core.write_bit(1, 0, pifacecommon.core.GPIOA)
+    >>> pifacecommon.core.read_bit(0, pifacecommon.core.GPIOA)
     1

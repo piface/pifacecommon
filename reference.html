@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reference &mdash; PiFace Common 1.2.1 documentation</title>
+    <title>Reference &mdash; PiFace Common 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.2.1',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 1.2.1 documentation" href="index.html" />
+    <link rel="top" title="PiFace Common 2.0.0 documentation" href="index.html" />
     <link rel="prev" title="Example" href="example.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="example.html" title="Example"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Common 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,27 +52,8 @@
             
   <div class="section" id="reference">
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">For backwards compatibility all constants, functions and classes in
-pifacecommon&#8217;s sub-modules (core, interrupts, errors) have been imported into
-the main namespace. <tt class="xref py py-func docutils literal"><span class="pre">pifacecommon.get_bit_num(0)()</span></tt> is the same as
-<tt class="xref py py-func docutils literal"><span class="pre">pifacecommon.core.get_bit_num(0)()</span></tt>.</p>
-</div>
 <div class="section" id="module-pifacecommon.core">
 <span id="core"></span><h2>Core<a class="headerlink" href="#module-pifacecommon.core" title="Permalink to this headline">¶</a></h2>
-<p>Provides core I/O methods for interfacing with PiFace Products
-Copyright (C) 2013 Thomas Preston &lt;<a class="reference external" href="mailto:thomasmarkpreston&#37;&#52;&#48;gmail&#46;com">thomasmarkpreston<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <dl class="class">
 <dt id="pifacecommon.core.DigitalInputItem">
 <em class="property">class </em><tt class="descclassname">pifacecommon.core.</tt><tt class="descname">DigitalInputItem</tt><big>(</big><em>pin_num</em>, <em>port</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacecommon.core.DigitalInputItem" title="Permalink to this definition">¶</a></dt>
@@ -394,63 +375,70 @@ bits set.</p>
 </div>
 <div class="section" id="module-pifacecommon.interrupts">
 <span id="interrupts"></span><h2>Interrupts<a class="headerlink" href="#module-pifacecommon.interrupts" title="Permalink to this headline">¶</a></h2>
-<p>Provides interrupt logic for interfacing with PiFace Products
-Copyright (C) 2013 Thomas Preston &lt;<a class="reference external" href="mailto:thomasmarkpreston&#37;&#52;&#48;gmail&#46;com">thomasmarkpreston<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <dl class="class">
-<dt id="pifacecommon.interrupts.InputFunctionMap">
-<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">InputFunctionMap</tt><a class="headerlink" href="#pifacecommon.interrupts.InputFunctionMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maps inputs pins to functions.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Extends <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<dt id="pifacecommon.interrupts.FunctionMap">
+<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">FunctionMap</tt><big>(</big><em>callback</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.FunctionMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps something to a callback function.
+(This is an abstract class, you must implement a SomethingFunctionMap).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pifacecommon.interrupts.InterruptEvent">
+<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">InterruptEvent</tt><big>(</big><em>interrupt_flag</em>, <em>interrupt_capture</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.InterruptEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>An interrupt event.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pifacecommon.interrupts.PinFunctionMap">
+<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">PinFunctionMap</tt><big>(</big><em>pin_num</em>, <em>direction</em>, <em>callback</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.PinFunctionMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps an IO pin and a direction to callback function.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pifacecommon.interrupts.PortEventListener">
+<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">PortEventListener</tt><big>(</big><em>port</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.PortEventListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Listens for port events and calls the registered functions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_flag</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_flag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">port</span> <span class="o">=</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">GPIOA</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">interrupts</span><span class="o">.</span><span class="n">PortEventListener</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">interrupts</span><span class="o">.</span><span class="n">IODIR_ON</span><span class="p">,</span> <span class="n">print_flag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+</pre></div>
 </div>
-<p>Each callback is passed the flag bit map (1 byte) and the input port
-(1 byte) state at the time of the interrupt. The return value of the
-function specifies whether the wait_for_input loop should continue
-(True is continue).</p>
 <dl class="method">
-<dt id="pifacecommon.interrupts.InputFunctionMap.register">
-<tt class="descname">register</tt><big>(</big><em>input_num</em>, <em>direction</em>, <em>callback</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.InputFunctionMap.register" title="Permalink to this definition">¶</a></dt>
-<dd><p>Registers an input number and direction to a callback function.</p>
+<dt id="pifacecommon.interrupts.PortEventListener.activate">
+<tt class="descname">activate</tt><big>(</big><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.PortEventListener.activate" title="Permalink to this definition">¶</a></dt>
+<dd><p>When activated the <a class="reference internal" href="#pifacecommon.interrupts.PortEventListener" title="pifacecommon.interrupts.PortEventListener"><tt class="xref py py-class docutils literal"><span class="pre">PortEventListener</span></tt></a> will run callbacks
+associated with pins/directions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pifacecommon.interrupts.PortEventListener.deactivate">
+<tt class="descname">deactivate</tt><big>(</big><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.PortEventListener.deactivate" title="Permalink to this definition">¶</a></dt>
+<dd><p>When deactivated the <a class="reference internal" href="#pifacecommon.interrupts.PortEventListener" title="pifacecommon.interrupts.PortEventListener"><tt class="xref py py-class docutils literal"><span class="pre">PortEventListener</span></tt></a> will not run
+anything.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pifacecommon.interrupts.PortEventListener.register">
+<tt class="descname">register</tt><big>(</big><em>pin_num</em>, <em>direction</em>, <em>callback</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.PortEventListener.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a pin number and direction to a callback function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_num</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The input pin number.</li>
-<li><strong>direction</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The direction of change (use: IN_EVENT_DIR_ON or
-IN_EVENT_DIR_OFF or IN_EVENT_DIR_BOTH)</li>
-<li><strong>callback</strong> (<em>function</em>) &#8211; The function to run when interrupt is detected.
-Function should return True if you want to keep waiting for
-interrupts.</li>
-<li><strong>board_num</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; PiFace digital board number (default: 0).</li>
+<li><strong>pin_num</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The pin pin number.</li>
+<li><strong>direction</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The event direction
+(use: IODIR_ON/IODIR_OFF/IODIR_BOTH)</li>
+<li><strong>callback</strong> (<em>function</em>) &#8211; The function to run when event is detected.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_flag</span><span class="p">(</span><span class="n">flag</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="k">return</span> <span class="bp">True</span>  <span class="c"># keep waiting</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ifm</span> <span class="o">=</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">interrupts</span><span class="o">.</span><span class="n">InputFunctionMap</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ifm</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">input_num</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">direction</span><span class="o">=</span><span class="n">pifacecommon</span><span class="o">.</span><span class="n">interrupts</span><span class="o">.</span><span class="n">IN_EVENT_DIR_ON</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">callback</span><span class="o">=</span><span class="n">print_flag</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>
@@ -463,18 +451,70 @@ on all boards.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacecommon.interrupts.wait_for_interrupt">
-<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">wait_for_interrupt</tt><big>(</big><em>port</em>, <em>input_func_map=None</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.wait_for_interrupt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Waits for an port event (change) and runs the callback function tied to
-that.</p>
+<dt id="pifacecommon.interrupts.disable_interrupts">
+<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">disable_interrupts</tt><big>(</big><em>port</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.disable_interrupts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables interrupts on the port specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port to enable interrupts on
+(pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pifacecommon.interrupts.enable_interrupts">
+<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">enable_interrupts</tt><big>(</big><em>port</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.enable_interrupts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables interrupts on the port specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port to enable interrupts on
+(pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pifacecommon.interrupts.handle_events">
+<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">handle_events</tt><big>(</big><em>function_maps</em>, <em>event_queue</em>, <em>event_matches_function_map</em>, <em>terminate_signal</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.handle_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits for events on the event queue and calls the registered functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function_maps</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of classes that have inheritted from
+<a class="reference internal" href="#pifacecommon.interrupts.FunctionMap" title="pifacecommon.interrupts.FunctionMap"><tt class="xref py py-class docutils literal"><span class="pre">FunctionMap</span></tt></a>s describing what to do with events.</li>
+<li><strong>event_queue</strong> (<a class="reference external" href="http://docs.python.org/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>) &#8211; A queue to put events on.</li>
+<li><strong>event_matches_function_map</strong> (<em>function</em>) &#8211; A function that determines if the given
+event and <a class="reference internal" href="#pifacecommon.interrupts.FunctionMap" title="pifacecommon.interrupts.FunctionMap"><tt class="xref py py-class docutils literal"><span class="pre">FunctionMap</span></tt></a> match.</li>
+<li><strong>terminate_signal</strong> &#8211; The signal that, when placed on the event queue,
+causes this function to exit.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pifacecommon.interrupts.watch_port_events">
+<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">watch_port_events</tt><big>(</big><em>port</em>, <em>event_queue</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.watch_port_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits for a port event. When a port event occurs it is placed onto the
+event queue.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port we are waiting for interrupts on (GPIOA/GPIOB).</li>
-<li><strong>input_func_map</strong> (<a class="reference internal" href="#pifacecommon.interrupts.InputFunctionMap" title="pifacecommon.interrupts.InputFunctionMap"><tt class="xref py py-class docutils literal"><span class="pre">InputFunctionMap</span></tt></a>) &#8211; An InputFunctionMap object describing callbacks.</li>
-<li><strong>timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; How long we should wait before giving up.</li>
+<li><strong>event_queue</strong> (<a class="reference external" href="http://docs.python.org/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>) &#8211; A queue to put events on.</li>
 </ul>
 </td>
 </tr>
@@ -537,7 +577,7 @@ that.</p>
         <li class="right" >
           <a href="example.html" title="Example"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Common 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

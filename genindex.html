@@ -10,7 +10,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; PiFace Common 1.2.1 documentation</title>
+    <title>Index &mdash; PiFace Common 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,7 +18,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.2.1',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 1.2.1 documentation" href="index.html" /> 
+    <link rel="top" title="PiFace Common 2.0.0 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">PiFace Common 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,6 +55,8 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -69,6 +71,10 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.PortEventListener.activate">activate() (pifacecommon.interrupts.PortEventListener method)</a>
+  </dt>
+
       
   <dt><a href="reference.html#pifacecommon.core.DigitalOutputPort.all_off">all_off() (pifacecommon.core.DigitalOutputPort method)</a>
   </dt>
@@ -95,6 +101,10 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.PortEventListener.deactivate">deactivate() (pifacecommon.interrupts.PortEventListener method)</a>
+  </dt>
+
       
   <dt><a href="reference.html#pifacecommon.core.deinit">deinit() (in module pifacecommon.core)</a>
   </dt>
@@ -125,6 +135,30 @@
   <dt><a href="reference.html#pifacecommon.core.DigitalPort">DigitalPort (class in pifacecommon.core)</a>
   </dt>
 
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.disable_interrupts">disable_interrupts() (in module pifacecommon.interrupts)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.enable_interrupts">enable_interrupts() (in module pifacecommon.interrupts)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.FunctionMap">FunctionMap (class in pifacecommon.interrupts)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -148,6 +182,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="reference.html#pifacecommon.interrupts.handle_events">handle_events() (in module pifacecommon.interrupts)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="reference.html#pifacecommon.core.DigitalPort.handler">handler (pifacecommon.core.DigitalPort attribute)</a>
   </dt>
 
@@ -164,7 +204,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="reference.html#pifacecommon.interrupts.InputFunctionMap">InputFunctionMap (class in pifacecommon.interrupts)</a>
+  <dt><a href="reference.html#pifacecommon.interrupts.InterruptEvent">InterruptEvent (class in pifacecommon.interrupts)</a>
   </dt>
 
   </dl></td>
@@ -177,10 +217,18 @@
   <dt><a href="reference.html#module-pifacecommon.core">pifacecommon.core (module)</a>
   </dt>
 
+      
+  <dt><a href="reference.html#module-pifacecommon.interrupts">pifacecommon.interrupts (module)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="reference.html#module-pifacecommon.interrupts">pifacecommon.interrupts (module)</a>
+  <dt><a href="reference.html#pifacecommon.interrupts.PinFunctionMap">PinFunctionMap (class in pifacecommon.interrupts)</a>
+  </dt>
+
+      
+  <dt><a href="reference.html#pifacecommon.interrupts.PortEventListener">PortEventListener (class in pifacecommon.interrupts)</a>
   </dt>
 
   </dl></td>
@@ -200,7 +248,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="reference.html#pifacecommon.interrupts.InputFunctionMap.register">register() (pifacecommon.interrupts.InputFunctionMap method)</a>
+  <dt><a href="reference.html#pifacecommon.interrupts.PortEventListener.register">register() (pifacecommon.interrupts.PortEventListener method)</a>
   </dt>
 
   </dl></td>
@@ -276,7 +324,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="reference.html#pifacecommon.interrupts.wait_for_interrupt">wait_for_interrupt() (in module pifacecommon.interrupts)</a>
+  <dt><a href="reference.html#pifacecommon.interrupts.watch_port_events">watch_port_events() (in module pifacecommon.interrupts)</a>
   </dt>
 
       
@@ -328,7 +376,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">PiFace Common 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
