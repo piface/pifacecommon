@@ -4,7 +4,10 @@ Change Log
 v2.0.0
 ------
 - Improved interrupts (different API, check the docs).
-- Reduced scope of some variables from package to modules.
+- Reduced scope of global variables from package to individual modules.
+  (Hiding namespaces from the end user is an attempt to simplify the interface
+  for children. However this package is not intended for that audience
+  and so messing with the namespaces only confuses things.)
 
 v1.2.1
 ------

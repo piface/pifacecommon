@@ -35,6 +35,8 @@ GPIO_UNEXPORT_FILE = "/sys/class/gpio/unexport"
 # max seconds to wait for file I/O (when enabling interrupts)
 FILE_IO_TIMEOUT = 1
 
+READY_FOR_EVENTS = "ready for events"
+
 
 class InterruptEvent(object):
     """An interrupt event."""
@@ -52,11 +54,19 @@ class InterruptEvent(object):
 
 
 class FunctionMap(object):
+    """Maps something to a callback function.
+    (This is an abstract class, you must implement a SomethingFunctionMap).
+    """
+    def __init__(self, callback):
+        self.callback = callback
+
+
+class PinFunctionMap(FunctionMap):
     """Maps an IO pin and a direction to callback function."""
     def __init__(self, pin_num, direction, callback):
         self.pin_num = pin_num
         self.direction = direction
-        self.callback = callback
+        super(PinFunctionMap, self).__init__(callback)
 
 
 class PortEventListener(object):
@@ -76,12 +86,16 @@ class PortEventListener(object):
     def __init__(self, port, board_num=0):
         self.port = port
         self.board_num = 0
-        self.function_maps = list()
+        self.pin_function_maps = list()
         self.event_queue = multiprocessing.Queue()
         self.detector = multiprocessing.Process(
             target=watch_port_events, args=(self.port, self.event_queue))
         self.dispatcher = threading.Thread(
-            target=handle_events, args=(self.function_maps, self.event_queue))
+            target=handle_events, args=(
+                self.pin_function_maps,
+                self.event_queue,
+                _event_matches_pin_function_map,
+                PortEventListener.TERMINATE_SIGNAL))
 
     def register(self, pin_num, direction, callback):
         """Registers a pin number and direction to a callback function.
@@ -92,11 +106,10 @@ class PortEventListener(object):
             (use: IODIR_ON/IODIR_OFF/IODIR_BOTH)
         :type direction: int
         :param callback: The function to run when event is detected.
-            Function should return True if you want to keep waiting for
-            interrupts.
         :type callback: function
         """
-        self.function_maps.append(FunctionMap(pin_num, direction, callback))
+        self.pin_function_maps.append(
+            PinFunctionMap(pin_num, direction, callback))
 
     def activate(self):
         """When activated the :class:`PortEventListener` will run callbacks
@@ -114,6 +127,13 @@ class PortEventListener(object):
         self.dispatcher.join()
         self.detector.terminate()
         disable_interrupts(self.port)
+
+
+def _event_matches_pin_function_map(event, pin_function_map):
+    pin_match = event.pin_num == pin_function_map.pin_num
+    direction_match = pin_function_map.direction is None
+    direction_match |= event.direction == pin_function_map.direction
+    return pin_match and direction_match
 
 
 def watch_port_events(port, event_queue):
@@ -154,36 +174,36 @@ def watch_port_events(port, event_queue):
     epoll.close()
 
 
-def handle_events(function_maps, event_queue):
+def handle_events(
+        function_maps, event_queue, event_matches_function_map,
+        terminate_signal):
     """Waits for events on the event queue and calls the registered functions.
 
-    :param function_maps: A list of :class:`FunctionMap`\ s describing what to
-        do with events.
+    :param function_maps: A list of classes that have inheritted from
+        :class:`FunctionMap`\ s describing what to do with events.
     :type function_maps: list
     :param event_queue: A queue to put events on.
     :type event_queue: :py:class:`multiprocessing.Queue`
+    :param event_matches_function_map: A function that determines if the given
+        event and :class:`FunctionMap` match.
+    :type event_matches_function_map: function
+    :param terminate_signal: The signal that, when placed on the event queue,
+        causes this function to exit.
     """
     while True:
         event = event_queue.get()
-        if event == PortEventListener.TERMINATE_SIGNAL:
+        if event == terminate_signal:
             return
         # if matching get the callback function, else function is None
         functions = map(
             lambda fm: fm.callback
-            if _event_matches_function_map(event, fm) else None,
+            if event_matches_function_map(event, fm) else None,
             function_maps)
         # reduce to just the callback functions (remove None)
         functions = filter(lambda f: f is not None, functions)
 
         for function in functions:
             function(event)
-
-
-def _event_matches_function_map(event, function_map):
-    pin_match = event.pin_num == function_map.pin_num
-    direction_match = function_map.direction is None
-    direction_match |= event.direction == function_map.direction
-    return pin_match and direction_match
 
 
 def clear_interrupts(port):
