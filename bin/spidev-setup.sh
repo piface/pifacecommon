@@ -3,6 +3,7 @@
 #:      Author: Thomas Preston
 
 udev_rules_file='/etc/udev/rules.d/50-spi.rules'
+spi_group_name='spiuser'
 
 # check if the script is being run as root
 if [[ $EUID -ne 0 ]]
@@ -18,14 +19,13 @@ then
 	exit 0
 fi
 
-
 # create the rules file
 printf 'Creating udev rule\n'
 echo 'KERNEL=="spidev*", GROUP="spiuser", MODE="0660"' > $udev_rules_file
 
-groupadd spiuser # create the spiuser group
-gpasswd -a pi spiuser # add pi to the spiuser group
-gpasswd -a www-data spiuser # add the webserver user to the spiuser group
+groupadd $spi_group_name # create the spiuser group
+gpasswd -a pi $spi_group_name # add pi to the spiuser group
+gpasswd -a www-data $spi_group_name # add the webserver user to the spiuser group
 
 printf 'User "pi" can now access the /dev/spidev* devices\n'
 printf 'Please REBOOT for the changes to take effect\n'

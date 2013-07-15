@@ -4,6 +4,7 @@
 
 udev_rules_file='/etc/udev/rules.d/51-gpio.rules'
 rule="SUBSYSTEM==\"gpio*\", PROGRAM=\"/bin/sh -c 'chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio; chown -R root:gpio /sys/devices/virtual/gpio && chmod -R 770 /sys/devices/virtual/gpio'\""
+gpio_group_name='gpio'
 
 # check if the script is being run as root
 if [[ $EUID -ne 0 ]]
@@ -22,8 +23,8 @@ fi
 # create the rule
 printf 'Creating udev rule\n'
 echo  $rule > $udev_rules_file
-groupadd gpio
-gpasswd -a pi gpio
+groupadd $gpio_group_name
+gpasswd -a pi $gpio_group_name
 
 printf 'User "pi" can now access the virtual gpio devices.\n'
 printf 'Please REBOOT for the changes to take effect.\n'
