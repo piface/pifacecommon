@@ -5,7 +5,8 @@ import subprocess
 
 
 ANSWERS = ('yes', 'y', '')
-DIST_PACKAGES = "/usr/local/lib/python3.2/dist-packages/"
+DIST_PACKAGES = "/usr/local/lib/python{major}.{minor}/dist-packages/".format(
+    major=sys.verion_info.major, minor=sys.version_info.minor)
 PIFACE_COMMON_PACKAGE_DIR = DIST_PACKAGES + "pifacecommon/"
 PIFACE_COMMON_EGG_INFO = DIST_PACKAGES + "pifacecommon-2.0.1.egg-info"
 
@@ -24,12 +25,12 @@ class UninstallFailed(Exception):
 def run_cmd(cmd, error_msg):
     success = subprocess.call([cmd], shell=True)
     if success != 0:
-        raise InstallFailed(error_msg)
+        raise UninstallFailed(error_msg)
 
 
 def blacklist_spi_bcm2708():
     print("Blacklisting SPI module.")
-    run_cmd(UNBLACKLIST_SPI_CMD, "Could not unblacklist spi_bcm2708.")
+    run_cmd(BLACKLIST_SPI_CMD, "Could not unblacklist spi_bcm2708.")
 
 
 def remove_gpio_udev_rule_and_group():

@@ -2,11 +2,14 @@
 Installation
 ############
 
+Install
+=======
+
 .. note:: Subtitute ``python3``/``easy_install3`` for
    ``python``/``easy_install`` if you want to install for Python 2.
 
 The Quick Way
-===============
+-------------
 To install pifacecommon with minimal fuss::
 
     $ git clone https://github.com/piface/pifacecommon.git
@@ -21,12 +24,12 @@ You can also get pifacecommon from PyPi::
 
 
 The Slow Way
-============
+------------
 This is a more detailed description of the installation. You will have to reboot
 after setting up SPI and GPIO permissions.
 
 Enable the SPI module
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 PiFace boards communicate with the Raspberry Pi through the SPI interface.
 The SPI interface driver is included in the latest Raspbian distributions
 but is not enabled by default. You can load the SPI driver manually by running::
@@ -43,14 +46,14 @@ for the user *pi* to access them. You can set these up by running::
     $ curl https://raw.github.com/piface/pifacecommon/master/bin/spidev-setup.sh | sudo bash
 
 Enable GPIO access
-------------------
+^^^^^^^^^^^^^^^^^^
 Interrupts work by monitoring the GPIO pins. You'll need to give the user *pi*
 access to these pins by running the following command::
 
     $ curl https://raw.github.com/piface/pifacecommon/master/bin/gpio-setup.sh | sudo bash
 
 Building and installing
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 Download and install with::
 
     $ git clone https://github.com/piface/pifacecommon.git
@@ -59,3 +62,11 @@ Download and install with::
 Edit the setup.py file so that MODULE_ONLY is True. Then run::
 
     $ sudo python3 setup.py install
+
+
+Uninstall
+=========
+
+To uninstall from anywhere::
+
+    $ curl https://raw.github.com/piface/pifacecommon/master/bin/uninstall.py | sudo python3
