@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+v2.0.2
+------
+- setup.py and uninstall.py now use scripts from bin/ instead of downloading
+  them from github.
+- Moved version number to pifacecommon/version.py so that it can be read from
+  setup.py and bin/uninstall.py.
+
 v2.0.1
 ------
 - Added version number in source.

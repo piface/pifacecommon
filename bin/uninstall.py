@@ -5,17 +5,43 @@ import subprocess
 
 
 ANSWERS = ('yes', 'y', '')
+
+PY3 = sys.version_info.major >= 3
+if not PY3:
+    input = raw_input
+
+
+def get_version():
+    if PY3:
+        version_vars = {}
+        with open(VERSION_FILE) as f:
+            code = compile(f.read(), VERSION_FILE, 'exec')
+            exec(code, None, version_vars)
+        return version_vars['__version__']
+    else:
+        execfile(VERSION_FILE)
+        return __version__
+
+
 DIST_PACKAGES = "/usr/local/lib/python{major}.{minor}/dist-packages/".format(
-    major=sys.verion_info.major, minor=sys.version_info.minor)
+    major=sys.version_info.major, minor=sys.version_info.minor)
 PIFACE_COMMON_PACKAGE_DIR = DIST_PACKAGES + "pifacecommon/"
-PIFACE_COMMON_EGG_INFO = DIST_PACKAGES + "pifacecommon-2.0.1.egg-info"
+VERSION_FILE = 'pifacecommon/version.py'
+PIFACE_COMMON_EGG_INFO = \
+    DIST_PACKAGES + "pifacecommon-{version}.egg-info".format(
+        version=get_version())
 
+# get scripts from github
+# SCRIPT_ROOT = "https://raw.github.com/piface/pifacecommon/master/bin/"
+# BLACKLIST_SPI_CMD = \
+#     "curl {}blacklist-spi-bcm2708.sh | bash".format(SCRIPT_ROOT)
+# TEARDOWN_SPI_CMD = "curl {}spidev-teardown.sh | bash".format(SCRIPT_ROOT)
+# TEARDOWN_GPIO_CMD = "curl {}gpio-teardown.sh | bash".format(SCRIPT_ROOT)
 
-SCRIPT_ROOT = "https://raw.github.com/piface/pifacecommon/master/bin/"
-BLACKLIST_SPI_CMD = \
-    "curl {}blacklist-spi-bcm2708.sh | bash".format(SCRIPT_ROOT)
-TEARDOWN_SPI_CMD = "curl {}spidev-teardown.sh | bash".format(SCRIPT_ROOT)
-TEARDOWN_GPIO_CMD = "curl {}gpio-teardown.sh | bash".format(SCRIPT_ROOT)
+# get scripts from local bin/
+BLACKLIST_SPI_CMD = "bin/blacklist-spi-bcm2708.sh"
+TEARDOWN_SPI_CMD = "bin/spidev-teardown.sh"
+TEARDOWN_GPIO_CMD = "bin/gpio-teardown.sh"
 
 
 class UninstallFailed(Exception):

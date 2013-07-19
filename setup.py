@@ -7,15 +7,37 @@ from distutils.core import setup
 # change this to True if you just want to install the module by itself
 MODULE_ONLY = False
 
-SCRIPT_ROOT = "https://raw.github.com/piface/pifacecommon/master/bin/"
-UNBLACKLIST_SPI_CMD = \
-    "curl {}unblacklist-spi-bcm2708.sh | bash".format(SCRIPT_ROOT)
-SETUP_SPI_CMD = "curl {}spidev-setup.sh | bash".format(SCRIPT_ROOT)
-SETUP_GPIO_CMD = "curl {}gpio-setup.sh | bash".format(SCRIPT_ROOT)
+VERSION_FILE = 'pifacecommon/version.py'
+
+PY3 = sys.version_info.major >= 3
+
+# grab scripts from network
+# SCRIPT_ROOT = "https://raw.github.com/piface/pifacecommon/master/bin/"
+# UNBLACKLIST_SPI_CMD = \
+#     "curl {}unblacklist-spi-bcm2708.sh | bash".format(SCRIPT_ROOT)
+# SETUP_SPI_CMD = "curl {}spidev-setup.sh | bash".format(SCRIPT_ROOT)
+# SETUP_GPIO_CMD = "curl {}gpio-setup.sh | bash".format(SCRIPT_ROOT)
+
+# use scripts from local bin/
+UNBLACKLIST_SPI_CMD = "bin/unblacklist-spi-bcm2708.sh"
+SETUP_SPI_CMD = "bin/spidev-setup.sh"
+SETUP_GPIO_CMD = "bin/gpio-setup.sh"
 
 
 class InstallFailed(Exception):
     pass
+
+
+def get_version():
+    if PY3:
+        version_vars = {}
+        with open(VERSION_FILE) as f:
+            code = compile(f.read(), VERSION_FILE, 'exec')
+            exec(code, None, version_vars)
+        return version_vars['__version__']
+    else:
+        execfile(VERSION_FILE)
+        return __version__
 
 
 def run_cmd(cmd, error_msg):
@@ -44,7 +66,7 @@ if "install" in sys.argv and not MODULE_ONLY:
 
 setup(
     name='pifacecommon',
-    version='2.0.1',
+    version=get_version(),
     description='The PiFace common functions module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
