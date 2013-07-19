@@ -49,8 +49,8 @@ INTPOL_HIGH = 0x02  # interupt polarity
 INTPOL_LOW = 0x00
 
 SPIDEV = '/dev/spidev'
-SPI_HELP_LINK = \
-    "https://github.com/piface/pifacecommon#1-enable-the-spi-module"
+SPI_HELP_LINK = "http://piface.github.io/pifacecommon/installation.html" \
+    "#enable-the-spi-module"
 
 spidev_fd = None
 
