@@ -4,28 +4,8 @@ import subprocess
 from distutils.core import setup
 
 
-# change this to True if you just want to install the module by itself
-MODULE_ONLY = False
-
 VERSION_FILE = 'pifacecommon/version.py'
-
-PY3 = sys.version_info.major >= 3
-
-# grab scripts from network
-# SCRIPT_ROOT = "https://raw.github.com/piface/pifacecommon/master/bin/"
-# UNBLACKLIST_SPI_CMD = \
-#     "curl {}unblacklist-spi-bcm2708.sh | bash".format(SCRIPT_ROOT)
-# SETUP_SPI_CMD = "curl {}spidev-setup.sh | bash".format(SCRIPT_ROOT)
-# SETUP_GPIO_CMD = "curl {}gpio-setup.sh | bash".format(SCRIPT_ROOT)
-
-# use scripts from local bin/
-UNBLACKLIST_SPI_CMD = "bin/unblacklist-spi-bcm2708.sh"
-SETUP_SPI_CMD = "bin/spidev-setup.sh"
-SETUP_GPIO_CMD = "bin/gpio-setup.sh"
-
-
-class InstallFailed(Exception):
-    pass
+PY3 = sys.version_info[0] >= 3
 
 
 def get_version():
@@ -38,30 +18,6 @@ def get_version():
     else:
         execfile(VERSION_FILE)
         return __version__
-
-
-def run_cmd(cmd, error_msg):
-    success = subprocess.call([cmd], shell=True)
-    if success != 0:
-        raise InstallFailed(error_msg)
-
-
-def unblacklist_spi_bcm2708():
-    run_cmd(UNBLACKLIST_SPI_CMD, "Could not unblacklist spi_bcm2708.")
-
-
-def setup_spi():
-    unblacklist_spi_bcm2708()
-    run_cmd(SETUP_SPI_CMD, "Could not set up SPI.")
-
-
-def setup_gpio():
-    run_cmd(SETUP_GPIO_CMD, "Could not set up GPIO.")
-
-
-if "install" in sys.argv and not MODULE_ONLY:
-    setup_spi()
-    setup_gpio()
 
 
 setup(

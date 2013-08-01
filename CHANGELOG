@@ -3,11 +3,10 @@ Change Log
 
 v2.0.2
 ------
-- setup.py and uninstall.py now use scripts from bin/ instead of downloading
-  them from github.
 - Moved version number to pifacecommon/version.py so that it can be read from
   setup.py and bin/uninstall.py.
 - Updated SPI help link to point to the new docs.
+- Moved installation scripts into single file for Debian packaging.
 
 v2.0.1
 ------

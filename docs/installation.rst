@@ -5,26 +5,18 @@ Installation
 Install
 =======
 
-.. note:: Subtitute ``python3``/``easy_install3`` for
-   ``python``/``easy_install`` if you want to install for Python 2.
+.. note:: Subtitute ``python3`` for ``python`` and
+   ``easy_install3`` for ``easy_install`` if you want to install for
+   Python 2.
 
-The Quick Way
--------------
-To install pifacecommon with minimal fuss::
+Debian Package
+--------------
 
-    $ git clone https://github.com/piface/pifacecommon.git
-    $ cd pifacecommon
-    $ sudo python3 setup.py install
-
-Then reboot.
-
-You can also get pifacecommon from PyPi::
-
-    $ sudo easy_install3 pifacecommon
+.. todo:: Installation of .deb
 
 
-The Slow Way
-------------
+Manually
+--------
 This is a more detailed description of the installation. You will have to reboot
 after setting up SPI and GPIO permissions.
 
@@ -36,37 +28,52 @@ but is not enabled by default. You can load the SPI driver manually by running::
 
     $ sudo modprobe spi-bcm2708
 
-And you can permanently enable it by running this command::
-
-    $ curl https://raw.github.com/piface/pifacecommon/master/bin/unblacklist-spi-bcm2708.sh | sudo bash
+And you can permanently enable it by commenting out the
+``blacklist spi-bcm2708`` line in ``/etc/modprobe.d/raspi-blacklist.conf``.
 
 The /dev/spidev* devices should now appear but they require special privileges
-for the user *pi* to access them. You can set these up by running::
+for the user *pi* to access them. You can set these up by adding the following
+rule to ``/etc/udev/rules.d/50-spi.rules``::
 
-    $ curl https://raw.github.com/piface/pifacecommon/master/bin/spidev-setup.sh | sudo bash
+    KERNEL=="spidev*", GROUP="spi", MODE="0660"
+
+Then create the spi group and add the user pi::
+
+    $ groupadd spi
+    $ gpasswd -a pi spi
+
 
 Enable GPIO access
 ^^^^^^^^^^^^^^^^^^
 Interrupts work by monitoring the GPIO pins. You'll need to give the user *pi*
-access to these pins by running the following command::
+access to these by adding the following udev rule to
+``/etc/udev/rules.d/51-gpio.rules``::
 
-    $ curl https://raw.github.com/piface/pifacecommon/master/bin/gpio-setup.sh | sudo bash
+    SUBSYSTEM=="gpio*", PROGRAM="
+    /bin/sh -c 'chown -R root:gpio /sys/class/gpio &&
+    chmod -R 770 /sys/class/gpio;
+    chown -R root:gpio /sys/devices/virtual/gpio &&
+    chmod -R 770 /sys/devices/virtual/gpio'"
+
+Then create the gpio group and add the user pi::
+
+    $ groupadd gpio
+    $ gpasswd -a pi gpio
 
 Building and installing
 ^^^^^^^^^^^^^^^^^^^^^^^
+
 Download and install with::
 
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon/
-
-Edit the setup.py file so that MODULE_ONLY is True. Then run::
-
     $ sudo python3 setup.py install
+
+.. note:: Installing like this will not use your package manager (apt). Use
+   at your own risk.
 
 
 Uninstall
 =========
 
-To uninstall from anywhere::
-
-    $ curl https://raw.github.com/piface/pifacecommon/master/bin/uninstall.py | sudo python3
+    $ dpkg --remove python3-pifacedigitalio
