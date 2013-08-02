@@ -25,7 +25,7 @@ setup(
     version=get_version(),
     description='The PiFace common functions module.',
     author='Thomas Preston',
-    author_email='thomasmarkpreston@gmail.com',
+    author_email='thomas.preston@openlx.org.uk',
     license='GPLv3+',
     url='https://github.com/piface/pifacecommon',
     packages=['pifacecommon'],
