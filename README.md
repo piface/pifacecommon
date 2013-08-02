@@ -24,7 +24,6 @@ Or you can install without using your package manager:
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon/
     $ sudo python3 setup.py install
+    $ sudo bin/post-installation.sh
 
-And for those of you that are still using Python 2:
-
-    $ sudo python setup.py install
+*Replace `python3` for `python` if you're using Python 2.*
