@@ -21,11 +21,3 @@ Install
 Or for those of you that are still using Python 2:
 
     $ sudo python setup.py install
-
-
-Uninstall
-=========
-
-    $ git clone https://github.com/piface/pifacecommon.git
-    $ cd pifacecommon
-    $ sudo python3 bin/uninstall.py
