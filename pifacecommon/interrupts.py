@@ -38,6 +38,10 @@ FILE_IO_TIMEOUT = 1
 READY_FOR_EVENTS = "ready for events"
 
 
+class Timeout(Exception):
+    pass
+
+
 class InterruptEvent(object):
     """An interrupt event."""
     def __init__(self, interrupt_flag, interrupt_capture):
