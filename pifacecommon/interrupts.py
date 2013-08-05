@@ -44,9 +44,10 @@ class Timeout(Exception):
 
 class InterruptEvent(object):
     """An interrupt event."""
-    def __init__(self, interrupt_flag, interrupt_capture):
+    def __init__(self, interrupt_flag, interrupt_capture, board_num):
         self.interrupt_flag = interrupt_flag
         self.interrupt_capture = interrupt_capture
+        self.board_num = board_num
 
     @property
     def pin_num(self):
@@ -89,11 +90,12 @@ class PortEventListener(object):
 
     def __init__(self, port, board_num=0):
         self.port = port
-        self.board_num = 0
+        self.board_num = board_num
         self.pin_function_maps = list()
         self.event_queue = multiprocessing.Queue()
         self.detector = multiprocessing.Process(
-            target=watch_port_events, args=(self.port, self.event_queue))
+            target=watch_port_events,
+            args=(self.port, self.board_num, self.event_queue))
         self.dispatcher = threading.Thread(
             target=handle_events, args=(
                 self.pin_function_maps,
@@ -140,17 +142,19 @@ def _event_matches_pin_function_map(event, pin_function_map):
     return pin_match and direction_match
 
 
-def watch_port_events(port, event_queue):
+def watch_port_events(port, board_num, event_queue):
     """Waits for a port event. When a port event occurs it is placed onto the
     event queue.
 
     :param port: The port we are waiting for interrupts on (GPIOA/GPIOB).
     :type port: int
+    :param board_num: The board we are waiting for interrupts on.
+    :type board_num: int
     :param event_queue: A queue to put events on.
     :type event_queue: :py:class:`multiprocessing.Queue`
     """
     # set up epoll
-    gpio25 = open(GPIO_INTERRUPT_DEVICE_VALUE, 'r')
+    gpio25 = open(GPIO_INTERRUPT_DEVICE_VALUE, 'r')  # change to use 'with'?
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
 
@@ -164,16 +168,13 @@ def watch_port_events(port, event_queue):
         events = epoll.poll()
 
         # find out where the interrupt came from and put it on the event queue
-        for board_i in range(MAX_BOARDS):
-            interrupt_flag = read(intflag, board_i)
-            if interrupt_flag == 0:
-                continue  # The interrupt has not been flagged on this board
-            else:
-                # found it!
-                interrupt_capture = read(intcapture, board_i)
-                event_queue.put(
-                    InterruptEvent(interrupt_flag, interrupt_capture))
-                break
+        interrupt_flag = read(intflag, board_num)
+        if interrupt_flag == 0:
+            continue  # The interrupt has not been flagged on this board
+        else:
+            interrupt_capture = read(intcapture, board_num)
+            event_queue.put(
+                InterruptEvent(interrupt_flag, interrupt_capture, board_num))
 
     epoll.close()
 
