@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v2.0.3
+------
+- Added timeout class (fixing Issue #2).
+
 v2.0.2
 ------
 - Moved version number to pifacecommon/version.py so that it can be read from
