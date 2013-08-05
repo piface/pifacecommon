@@ -121,7 +121,6 @@ class PortEventListener(object):
         """When activated the :class:`PortEventListener` will run callbacks
         associated with pins/directions.
         """
-        # enable_interrupts(self.port)
         self.detector.start()
         self.dispatcher.start()
 
@@ -132,7 +131,6 @@ class PortEventListener(object):
         self.event_queue.put(self.TERMINATE_SIGNAL)
         self.dispatcher.join()
         self.detector.terminate()
-        # disable_interrupts(self.port)
 
 
 def _event_matches_pin_function_map(event, pin_function_map):
