@@ -1,10 +1,12 @@
 Change Log
 ==========
 
-v2.0.3
+v3.0.0
 ------
 - Added timeout class (fixing Issue #2) in interrupts.
 - Added support for interrupts on multiple boards.
+- Interrupts must be enabled/disabled manually. Automatic handling of this
+  broke interrupts from multiple boards.
 
 v2.0.2
 ------
