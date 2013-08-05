@@ -9,16 +9,36 @@ Install
    ``easy_install3`` for ``easy_install`` if you want to install for
    Python 2.
 
-Debian Package
---------------
+Automatically
+-------------
 
-.. todo:: Installation of .deb
+Download the latest release from
+`here <https://github.com/piface/pifacecommon/releases>`_. Then install with::
+
+    $ dpkg -i python3-pifacecommon_2.0.3-1_all.deb
+
+Or you can install without using your package manager::
+
+    $ git clone https://github.com/piface/pifacecommon.git
+    $ cd pifacecommon/
+    $ sudo python3 setup.py install
+    $ sudo bin/post-installation.sh
 
 
 Manually
 --------
 This is a more detailed description of the installation. You will have to reboot
 after setting up SPI and GPIO permissions.
+
+Building and installing
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Download and install with::
+
+    $ git clone https://github.com/piface/pifacecommon.git
+    $ cd pifacecommon/
+    $ sudo python3 setup.py install
+
 
 Enable the SPI module
 ^^^^^^^^^^^^^^^^^^^^^
@@ -59,21 +79,3 @@ Then create the gpio group and add the user pi::
 
     $ groupadd gpio
     $ gpasswd -a pi gpio
-
-Building and installing
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Download and install with::
-
-    $ git clone https://github.com/piface/pifacecommon.git
-    $ cd pifacecommon/
-    $ sudo python3 setup.py install
-
-.. note:: Installing like this will not use your package manager (apt). Use
-   at your own risk.
-
-
-Uninstall
-=========
-
-    $ dpkg --remove python3-pifacedigitalio
