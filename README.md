@@ -19,6 +19,8 @@ Download the latest release from
 
     $ dpkg -i python3-pifacecommon_2.0.2-1_all.deb
 
+You may need to reboot.
+
 Or you can install without using your package manager:
 
     $ git clone https://github.com/piface/pifacecommon.git

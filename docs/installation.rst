@@ -5,24 +5,22 @@ Installation
 Install
 =======
 
-.. note:: Subtitute ``python3`` for ``python`` and
-   ``easy_install3`` for ``easy_install`` if you want to install for
+.. note:: Subtitute ``python3`` for ``python`` if you want to install for
    Python 2.
 
 Automatically
 -------------
 
-Download the latest release from
-`here <https://github.com/piface/pifacecommon/releases>`_. Then install with::
+Download the latest debian package from
+`here <https://github.com/piface/pifacecommon/releases>`_. Then install with:
 
-    $ dpkg -i python3-pifacecommon_2.0.3-1_all.deb
+.. parsed-literal::
 
-Or you can install without using your package manager::
+    $ sudo dpkg -i python3-pifacecommon\_\ |version|-1_all.deb
 
-    $ git clone https://github.com/piface/pifacecommon.git
-    $ cd pifacecommon/
-    $ sudo python3 setup.py install
-    $ sudo bin/post-installation.sh
+You may need to reboot.
+
+.. note:: Python 2 users will want to use python-pifacecommon\_\ |version|-1_all.deb.
 
 
 Manually
@@ -38,6 +36,7 @@ Download and install with::
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon/
     $ sudo python3 setup.py install
+    $ sudo bin/post-installation.sh
 
 
 Enable the SPI module
