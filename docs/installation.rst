@@ -82,4 +82,6 @@ Then create the gpio group and add the user pi::
 Uninstall
 =========
 
+::
+
     $ sudo dpkg --remove python3-pifacecommon
