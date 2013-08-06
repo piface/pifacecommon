@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reference &mdash; PiFace Common 2.0.0 documentation</title>
+    <title>Reference &mdash; PiFace Common 3.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0',
+        VERSION:     '3.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Common 3.0.0 documentation" href="index.html" />
     <link rel="prev" title="Example" href="example.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="example.html" title="Example"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -384,7 +384,7 @@ bits set.</p>
 
 <dl class="class">
 <dt id="pifacecommon.interrupts.InterruptEvent">
-<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">InterruptEvent</tt><big>(</big><em>interrupt_flag</em>, <em>interrupt_capture</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.InterruptEvent" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">InterruptEvent</tt><big>(</big><em>interrupt_flag</em>, <em>interrupt_capture</em>, <em>board_num</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.InterruptEvent" title="Permalink to this definition">¶</a></dt>
 <dd><p>An interrupt event.</p>
 </dd></dl>
 
@@ -505,7 +505,7 @@ causes this function to exit.</li>
 
 <dl class="function">
 <dt id="pifacecommon.interrupts.watch_port_events">
-<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">watch_port_events</tt><big>(</big><em>port</em>, <em>event_queue</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.watch_port_events" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pifacecommon.interrupts.</tt><tt class="descname">watch_port_events</tt><big>(</big><em>port</em>, <em>board_num</em>, <em>event_queue</em><big>)</big><a class="headerlink" href="#pifacecommon.interrupts.watch_port_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Waits for a port event. When a port event occurs it is placed onto the
 event queue.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -514,6 +514,7 @@ event queue.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port we are waiting for interrupts on (GPIOA/GPIOB).</li>
+<li><strong>board_num</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The board we are waiting for interrupts on.</li>
 <li><strong>event_queue</strong> (<a class="reference external" href="http://docs.python.org/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>) &#8211; A queue to put events on.</li>
 </ul>
 </td>
@@ -577,7 +578,7 @@ event queue.</p>
         <li class="right" >
           <a href="example.html" title="Example"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

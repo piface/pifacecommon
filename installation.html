@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; PiFace Common 2.0.0 documentation</title>
+    <title>Installation &mdash; PiFace Common 3.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0',
+        VERSION:     '3.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Common 3.0.0 documentation" href="index.html" />
     <link rel="next" title="Example" href="example.html" />
     <link rel="prev" title="Welcome to PiFace Common’s documentation!" href="index.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to PiFace Common’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,57 +56,74 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Subtitute <tt class="docutils literal"><span class="pre">python3</span></tt>/<tt class="docutils literal"><span class="pre">easy_install3</span></tt> for
-<tt class="docutils literal"><span class="pre">python</span></tt>/<tt class="docutils literal"><span class="pre">easy_install</span></tt> if you want to install for Python 2.</p>
+<p class="last">Subtitute <tt class="docutils literal"><span class="pre">python3</span></tt> for <tt class="docutils literal"><span class="pre">python</span></tt> if you want to install for
+Python 2.</p>
 </div>
-<div class="section" id="the-quick-way">
-<h2>The Quick Way<a class="headerlink" href="#the-quick-way" title="Permalink to this headline">¶</a></h2>
-<p>To install pifacecommon with minimal fuss:</p>
-<div class="highlight-python"><pre>$ git clone https://github.com/piface/pifacecommon.git
-$ cd pifacecommon
-$ sudo python3 setup.py install</pre>
+<div class="section" id="automatically">
+<h3>Automatically<a class="headerlink" href="#automatically" title="Permalink to this headline">¶</a></h3>
+<p>Download the latest debian package from
+<a class="reference external" href="https://github.com/piface/pifacecommon/releases">here</a>. Then install with:</p>
+<pre class="literal-block">
+$ sudo dpkg -i python3-pifacecommon_3.0.0-1_all.deb
+</pre>
+<p>You may need to reboot.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Python 2 users will want to use python-pifacecommon_3.0.0-1_all.deb.</p>
 </div>
-<p>Then reboot.</p>
-<p>You can also get pifacecommon from PyPi:</p>
-<div class="highlight-python"><pre>$ sudo easy_install3 pifacecommon</pre>
 </div>
-</div>
-<div class="section" id="the-slow-way">
-<h2>The Slow Way<a class="headerlink" href="#the-slow-way" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="manually">
+<h3>Manually<a class="headerlink" href="#manually" title="Permalink to this headline">¶</a></h3>
 <p>This is a more detailed description of the installation. You will have to reboot
 after setting up SPI and GPIO permissions.</p>
+<div class="section" id="building-and-installing">
+<h4>Building and installing<a class="headerlink" href="#building-and-installing" title="Permalink to this headline">¶</a></h4>
+<p>Download and install with:</p>
+<div class="highlight-python"><pre>$ git clone https://github.com/piface/pifacecommon.git
+$ cd pifacecommon/
+$ sudo python3 setup.py install
+$ sudo bin/post-installation.sh</pre>
+</div>
+</div>
 <div class="section" id="enable-the-spi-module">
-<h3>Enable the SPI module<a class="headerlink" href="#enable-the-spi-module" title="Permalink to this headline">¶</a></h3>
+<h4>Enable the SPI module<a class="headerlink" href="#enable-the-spi-module" title="Permalink to this headline">¶</a></h4>
 <p>PiFace boards communicate with the Raspberry Pi through the SPI interface.
 The SPI interface driver is included in the latest Raspbian distributions
 but is not enabled by default. You can load the SPI driver manually by running:</p>
 <div class="highlight-python"><pre>$ sudo modprobe spi-bcm2708</pre>
 </div>
-<p>And you can permanently enable it by running this command:</p>
-<div class="highlight-python"><pre>$ curl https://raw.github.com/piface/pifacecommon/master/bin/unblacklist-spi-bcm2708.sh | sudo bash</pre>
-</div>
+<p>And you can permanently enable it by commenting out the
+<tt class="docutils literal"><span class="pre">blacklist</span> <span class="pre">spi-bcm2708</span></tt> line in <tt class="docutils literal"><span class="pre">/etc/modprobe.d/raspi-blacklist.conf</span></tt>.</p>
 <p>The /dev/spidev* devices should now appear but they require special privileges
-for the user <em>pi</em> to access them. You can set these up by running:</p>
-<div class="highlight-python"><pre>$ curl https://raw.github.com/piface/pifacecommon/master/bin/spidev-setup.sh | sudo bash</pre>
+for the user <em>pi</em> to access them. You can set these up by adding the following
+rule to <tt class="docutils literal"><span class="pre">/etc/udev/rules.d/50-spi.rules</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">KERNEL</span><span class="o">==</span><span class="s">&quot;spidev*&quot;</span><span class="p">,</span> <span class="n">GROUP</span><span class="o">=</span><span class="s">&quot;spi&quot;</span><span class="p">,</span> <span class="n">MODE</span><span class="o">=</span><span class="s">&quot;0660&quot;</span>
+</pre></div>
+</div>
+<p>Then create the spi group and add the user pi:</p>
+<div class="highlight-python"><pre>$ groupadd spi
+$ gpasswd -a pi spi</pre>
 </div>
 </div>
 <div class="section" id="enable-gpio-access">
-<h3>Enable GPIO access<a class="headerlink" href="#enable-gpio-access" title="Permalink to this headline">¶</a></h3>
+<h4>Enable GPIO access<a class="headerlink" href="#enable-gpio-access" title="Permalink to this headline">¶</a></h4>
 <p>Interrupts work by monitoring the GPIO pins. You&#8217;ll need to give the user <em>pi</em>
-access to these pins by running the following command:</p>
-<div class="highlight-python"><pre>$ curl https://raw.github.com/piface/pifacecommon/master/bin/gpio-setup.sh | sudo bash</pre>
+access to these by adding the following udev rule to
+<tt class="docutils literal"><span class="pre">/etc/udev/rules.d/51-gpio.rules</span></tt>:</p>
+<div class="highlight-python"><pre>SUBSYSTEM==&quot;gpio*&quot;, PROGRAM=&quot;
+/bin/sh -c &#x27;chown -R root:gpio /sys/class/gpio &amp;&amp;
+chmod -R 770 /sys/class/gpio;
+chown -R root:gpio /sys/devices/virtual/gpio &amp;&amp;
+chmod -R 770 /sys/devices/virtual/gpio&#x27;&quot;</pre>
 </div>
+<p>Then create the gpio group and add the user pi:</p>
+<div class="highlight-python"><pre>$ groupadd gpio
+$ gpasswd -a pi gpio</pre>
 </div>
-<div class="section" id="building-and-installing">
-<h3>Building and installing<a class="headerlink" href="#building-and-installing" title="Permalink to this headline">¶</a></h3>
-<p>Download and install with:</p>
-<div class="highlight-python"><pre>$ git clone https://github.com/piface/pifacecommon.git
-$ cd pifacecommon/</pre>
-</div>
-<p>Edit the setup.py file so that MODULE_ONLY is True. Then run:</p>
-<div class="highlight-python"><pre>$ sudo python3 setup.py install</pre>
 </div>
 </div>
 </div>
@@ -121,11 +138,14 @@ $ cd pifacecommon/</pre>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#the-quick-way">The Quick Way</a></li>
-<li><a class="reference internal" href="#the-slow-way">The Slow Way</a><ul>
+<li><a class="reference internal" href="#install">Install</a><ul>
+<li><a class="reference internal" href="#automatically">Automatically</a></li>
+<li><a class="reference internal" href="#manually">Manually</a><ul>
+<li><a class="reference internal" href="#building-and-installing">Building and installing</a></li>
 <li><a class="reference internal" href="#enable-the-spi-module">Enable the SPI module</a></li>
 <li><a class="reference internal" href="#enable-gpio-access">Enable GPIO access</a></li>
-<li><a class="reference internal" href="#building-and-installing">Building and installing</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -175,7 +195,7 @@ $ cd pifacecommon/</pre>
         <li class="right" >
           <a href="index.html" title="Welcome to PiFace Common’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Common 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
