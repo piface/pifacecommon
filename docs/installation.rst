@@ -5,9 +5,6 @@ Installation
 Install
 =======
 
-.. note:: Subtitute ``python3`` for ``python`` if you want to install for
-   Python 2.
-
 Automatically
 -------------
 
@@ -18,15 +15,15 @@ Download the latest debian package from
 
     $ sudo dpkg -i python3-pifacecommon\_\ |version|-1_all.deb
 
-You may need to reboot.
-
 .. note:: Python 2 users will want to use python-pifacecommon\_\ |version|-1_all.deb.
+
+You may need to reboot.
 
 
 Manually
 --------
-This is a more detailed description of the installation. You will have to reboot
-after setting up SPI and GPIO permissions.
+This is a more detailed description of the installation. You will have
+to reboot after setting up SPI and GPIO permissions.
 
 Building and installing
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,7 +33,9 @@ Download and install with::
     $ git clone https://github.com/piface/pifacecommon.git
     $ cd pifacecommon/
     $ sudo python3 setup.py install
-    $ sudo bin/post-installation.sh
+
+.. note:: Subtitute ``python3`` for ``python`` if you want to install for
+   Python 2.
 
 
 Enable the SPI module
@@ -52,7 +51,8 @@ And you can permanently enable it by commenting out the
 
 The /dev/spidev* devices should now appear but they require special privileges
 for the user *pi* to access them. You can set these up by adding the following
-rule to ``/etc/udev/rules.d/50-spi.rules``::
+`udev rule <https://wiki.debian.org/udev>`_ to
+``/etc/udev/rules.d/50-spi.rules``::
 
     KERNEL=="spidev*", GROUP="spi", MODE="0660"
 
@@ -65,7 +65,7 @@ Then create the spi group and add the user pi::
 Enable GPIO access
 ^^^^^^^^^^^^^^^^^^
 Interrupts work by monitoring the GPIO pins. You'll need to give the user *pi*
-access to these by adding the following udev rule to
+access to these by adding the following udev rule (all on one line) to
 ``/etc/udev/rules.d/51-gpio.rules``::
 
     SUBSYSTEM=="gpio*", PROGRAM="
