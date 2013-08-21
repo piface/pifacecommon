@@ -61,6 +61,9 @@ Then create the spi group and add the user pi::
     $ groupadd spi
     $ gpasswd -a pi spi
 
+.. note:: To enable other users to access SPI devices (PiFace, for example)
+   you can add them to the ``spi`` group with ``gpasswd -a otheruser spi``.
+
 
 Enable GPIO access
 ^^^^^^^^^^^^^^^^^^
