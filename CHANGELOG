@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v3.1.0
+------
+- Added debouncing with adjustable `settle time`.
+
 v3.0.0
 ------
 - Added timeout class (fixing Issue #2) in interrupts.

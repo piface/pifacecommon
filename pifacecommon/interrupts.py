@@ -37,6 +37,9 @@ FILE_IO_TIMEOUT = 1
 
 READY_FOR_EVENTS = "ready for events"
 
+# deboucing
+DEFAULT_SETTLE_TIME = 0.020  # 20ms
+
 
 class Timeout(Exception):
     pass
@@ -44,10 +47,12 @@ class Timeout(Exception):
 
 class InterruptEvent(object):
     """An interrupt event."""
-    def __init__(self, interrupt_flag, interrupt_capture, board_num):
+    def __init__(
+            self, interrupt_flag, interrupt_capture, board_num, timestamp):
         self.interrupt_flag = interrupt_flag
         self.interrupt_capture = interrupt_capture
         self.board_num = board_num
+        self.timestamp = timestamp
 
     @property
     def pin_num(self):
@@ -62,16 +67,52 @@ class FunctionMap(object):
     """Maps something to a callback function.
     (This is an abstract class, you must implement a SomethingFunctionMap).
     """
-    def __init__(self, callback):
+    def __init__(self, callback, settle_time=None):
         self.callback = callback
+        self.settle_time = settle_time
 
 
 class PinFunctionMap(FunctionMap):
     """Maps an IO pin and a direction to callback function."""
-    def __init__(self, pin_num, direction, callback):
+    def __init__(self, pin_num, direction, callback, settle_time):
         self.pin_num = pin_num
         self.direction = direction
-        super(PinFunctionMap, self).__init__(callback)
+        super(PinFunctionMap, self).__init__(callback, settle_time)
+
+
+class EventQueue(object):
+    """Stores events in a queue."""
+    def __init__(self, pin_function_maps):
+        super(EventQueue, self).__init__()
+        self.last_event_time = [0]*8  # last event time on each pin
+        self.pin_function_maps = pin_function_maps
+        self.queue = multiprocessing.Queue()
+
+    def add_event(self, event):
+        """Adds events to the queue. Will ignore events that occur before the
+        settle time for that pin/direction. Such events are assumed to be
+        bouncing.
+        """
+        # find out the pin settle time
+        for pin_function_map in self.pin_function_maps:
+            if pin_function_map.pin_num == event.pin_num and \
+                    pin_function_map.direction == event.direction:
+                pin_settle_time = pin_function_map.settle_time
+                break
+        else:
+            # Couldn't find event in map, don't bother adding it to the queue
+            return
+
+        threshold_time = self.last_event_time[event.pin_num] + pin_settle_time
+        if event.timestamp > threshold_time:
+            self.put(event)
+            self.last_event_time[event.pin_num] = event.timestamp
+
+    def put(self, thing):
+        self.queue.put(thing)
+
+    def get(self):
+        return self.queue.get()
 
 
 class PortEventListener(object):
@@ -92,18 +133,24 @@ class PortEventListener(object):
         self.port = port
         self.board_num = board_num
         self.pin_function_maps = list()
-        self.event_queue = multiprocessing.Queue()
+        self.event_queue = EventQueue(self.pin_function_maps)
         self.detector = multiprocessing.Process(
             target=watch_port_events,
-            args=(self.port, self.board_num, self.event_queue))
+            args=(
+                self.port,
+                self.board_num,
+                self.pin_function_maps,
+                self.event_queue))
         self.dispatcher = threading.Thread(
-            target=handle_events, args=(
+            target=handle_events,
+            args=(
                 self.pin_function_maps,
                 self.event_queue,
                 _event_matches_pin_function_map,
                 PortEventListener.TERMINATE_SIGNAL))
 
-    def register(self, pin_num, direction, callback):
+    def register(self, pin_num, direction, callback,
+                 settle_time=DEFAULT_SETTLE_TIME):
         """Registers a pin number and direction to a callback function.
 
         :param pin_num: The pin pin number.
@@ -113,9 +160,11 @@ class PortEventListener(object):
         :type direction: int
         :param callback: The function to run when event is detected.
         :type callback: function
+        :param settle_time: Time within which subsequent events are ignored.
+        :type settle_time: int
         """
         self.pin_function_maps.append(
-            PinFunctionMap(pin_num, direction, callback))
+            PinFunctionMap(pin_num, direction, callback, settle_time))
 
     def activate(self):
         """When activated the :class:`PortEventListener` will run callbacks
@@ -140,7 +189,7 @@ def _event_matches_pin_function_map(event, pin_function_map):
     return pin_match and direction_match
 
 
-def watch_port_events(port, board_num, event_queue):
+def watch_port_events(port, board_num, pin_function_maps, event_queue):
     """Waits for a port event. When a port event occurs it is placed onto the
     event queue.
 
@@ -148,6 +197,9 @@ def watch_port_events(port, board_num, event_queue):
     :type port: int
     :param board_num: The board we are waiting for interrupts on.
     :type board_num: int
+    :param pin_function_maps: A list of classes that have inheritted from
+        :class:`FunctionMap`\ s describing what to do with events.
+    :type pin_function_maps: list
     :param event_queue: A queue to put events on.
     :type event_queue: :py:class:`multiprocessing.Queue`
     """
@@ -158,7 +210,7 @@ def watch_port_events(port, board_num, event_queue):
 
     # a bit map showing what caused the interrupt
     intflag = INTFA if port == GPIOA else INTFB
-    # a snapshot of the port when int occured
+    # a snapshot of the port when interrupt occured
     intcapture = INTCAPA if port == GPIOA else INTCAPB
 
     while True:
@@ -171,8 +223,8 @@ def watch_port_events(port, board_num, event_queue):
             continue  # The interrupt has not been flagged on this board
         else:
             interrupt_capture = read(intcapture, board_num)
-            event_queue.put(
-                InterruptEvent(interrupt_flag, interrupt_capture, board_num))
+            event_queue.add_event(InterruptEvent(
+                interrupt_flag, interrupt_capture, board_num, time.time()))
 
     epoll.close()
 
@@ -203,6 +255,7 @@ def handle_events(
             if event_matches_function_map(event, fm) else None,
             function_maps)
         # reduce to just the callback functions (remove None)
+        # TODO: I think this can just be filter(None, functions)
         functions = filter(lambda f: f is not None, functions)
 
         for function in functions:
