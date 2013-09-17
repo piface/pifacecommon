@@ -1,6 +1,29 @@
 Change Log
 ==========
 
+v3.1.1
+------
+- Added IODIR_FALLING_EDGE and IODIR_RISING_EDGE to replace IODIR_ON and
+  IODIR_OFF respecitvley. IODIR_ON and IODIR_OFF can still be used in the same
+  way as before. Falling/Rising Edge are for physical level 1/0, On/Off are for
+  logical (programmer) level 1/0.
+
+    Physical Level (pifacecommon.read_bit):
+        IODIR_FALLING_EDGE: 1 -> 0
+        IODIR_RISING_EDGE: 0 -> 1
+    Logical Level (pifacedigitalio.PiFaceDigital().input_pins[0].value):
+        IODIR_ON: 0 -> 1
+        IODIR_OFF: 1 -> 0
+
+    Remember the difference:
+        # switch is unpressed
+        pifacecommon.read_bit(0, INPUT_PORT)
+        1  # physical
+        pifacedigitalio.PiFaceDigital().input_pins[0].value
+        0  # logical
+
+- Fixed Debian package bug where setup script would not be executed.
+
 v3.1.0
 ------
 - Added debouncing with adjustable `settle time`.
