@@ -15,12 +15,11 @@ v3.1.1
         IODIR_ON: 0 -> 1
         IODIR_OFF: 1 -> 0
 
-    Remember the difference:
-        # switch is unpressed
-        pifacecommon.read_bit(0, INPUT_PORT)
-        1  # physical
-        pifacedigitalio.PiFaceDigital().input_pins[0].value
-        0  # logical
+    Remember that PiFace Digital Inputs are active low:
+        >>> pifacecommon.read_bit(0, INPUT_PORT)
+        >>> 1  # physical
+        >>> pifacedigitalio.PiFaceDigital().input_pins[0].value
+        >>> 0  # logical
 
 - Fixed Debian package bug where setup script would not be executed.
 
