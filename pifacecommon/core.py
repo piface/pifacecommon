@@ -70,7 +70,7 @@ class InputDeviceError(Exception):
 class DigitalPort(object):
     """A digital port on a PiFace product."""
 
-    def __init__(self, port, board_num=0):
+    def __init__(self, port, board_num=0, toggle=0x00, mask=0xFF):
         self.port = port
         if board_num < 0 or board_num >= MAX_BOARDS:
             raise RangeError(
@@ -78,6 +78,8 @@ class DigitalPort(object):
             )
         else:
             self.board_num = board_num
+        self.toggle = toggle
+        self.mask = mask
 
     @property
     def handler(self):
@@ -89,11 +91,13 @@ class DigitalPort(object):
     @property
     def value(self):
         """The value of the digital port."""
-        return self.handler.read(self.port, self.board_num)
+        return self.mask & (
+            self.toggle ^ self.handler.read(self.port, self.board_num))
 
     @value.setter
     def value(self, data):
-        return self.handler.write(data, self.port, self.board_num)
+        return self.handler.write(
+            self.mask & (data ^ self.toggle), self.port, self.board_num)
 
 
 class DigitalInputPort(DigitalPort):
@@ -107,14 +111,14 @@ class DigitalInputPort(DigitalPort):
        >>> hex(pifacecommon.core.DigitalInputPort(input_port).value)
        '0x00'
     """
-    def __init__(self, port, board_num=0):
-        super(DigitalInputPort, self).__init__(port, board_num)
+    # def __init__(self, port, board_num=0):
+    #     super(DigitalInputPort, self).__init__(port, board_num)
 
-    # redefine value property for input
-    @property
-    def value(self):
-        """The value of the digital input port."""
-        return 0xFF ^ self.handler.read(self.port, self.board_num)
+    # # redefine value property for input
+    # @property
+    # def value(self):
+    #     """The value of the digital input port."""
+    #     return 0xFF ^ self.handler.read(self.port, self.board_num)
 
     @value.setter
     def value(self, data):
@@ -123,8 +127,8 @@ class DigitalInputPort(DigitalPort):
 
 class DigitalOutputPort(DigitalPort):
     """An digital output port on a PiFace product"""
-    def __init__(self, port, board_num=0):
-        super(DigitalOutputPort, self).__init__(port, board_num)
+    # def __init__(self, port, board_num=0):
+    #     super(DigitalOutputPort, self).__init__(port, board_num)
 
     def all_on(self):
         """Turns all outputs on."""
@@ -144,14 +148,15 @@ class DigitalItem(DigitalPort):
     Has most of the same properties of a Digital Port.
     """
 
-    def __init__(self, pin_num, port, board_num=0):
+    def __init__(self, pin_num, port, board_num=0, toggle=0):
         super(DigitalItem, self).__init__(port, board_num)
         self.pin_num = pin_num
+        self.toggle = toggle
 
     @property
     def value(self):
         """The value of the digital item."""
-        return self.handler.read_bit(
+        return self.toggle ^ self.handler.read_bit(
             self.pin_num,
             self.port,
             self.board_num)
@@ -159,7 +164,7 @@ class DigitalItem(DigitalPort):
     @value.setter
     def value(self, data):
         return self.handler.write_bit(
-            data,
+            self.toggle ^ data,
             self.pin_num,
             self.port,
             self.board_num)
@@ -176,18 +181,18 @@ class DigitalInputItem(DigitalItem):
        >>> hex(pifacecommon.core.DigitalInputItem(0, input_port).value)
        0
     """
-    def __init__(self, pin_num, port, board_num=0):
-        super(DigitalInputItem, self).__init__(pin_num, port, board_num)
+    # def __init__(self, pin_num, port, board_num=0):
+    #     super(DigitalInputItem, self).__init__(pin_num, port, board_num)
 
     # redefine value property for input
-    @property
-    def value(self):
-        """The inverse value of the digital input item (inputs are active low).
-        """
-        return 1 ^ self.handler.read_bit(
-            self.pin_num,
-            self.port,
-            self.board_num)
+    # @property
+    # def value(self):
+    #     """The inverse value of the digital input item (inputs are active low
+    #     """
+    #     return 1 ^ self.handler.read_bit(
+    #         self.pin_num,
+    #         self.port,
+    #         self.board_num)
 
     @value.setter
     def value(self, data):
@@ -196,8 +201,8 @@ class DigitalInputItem(DigitalItem):
 
 class DigitalOutputItem(DigitalItem):
     """An output connected to a pin a PiFace Digital product."""
-    def __init__(self, pin_num, port, board_num=0):
-        super(DigitalOutputItem, self).__init__(pin_num, port, board_num)
+    # def __init__(self, pin_num, port, board_num=0):
+    #     super(DigitalOutputItem, self).__init__(pin_num, port, board_num)
 
     def turn_on(self):
         """Sets the digital output item's value to 1."""
