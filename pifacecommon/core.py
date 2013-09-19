@@ -120,7 +120,7 @@ class DigitalInputPort(DigitalPort):
     #     """The value of the digital input port."""
     #     return 0xFF ^ self.handler.read(self.port, self.board_num)
 
-    @value.setter
+    @DigitalPort.value.setter
     def value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
 
@@ -171,16 +171,7 @@ class DigitalItem(DigitalPort):
 
 
 class DigitalInputItem(DigitalItem):
-    """An digital input connected to a pin a PiFace product.
-
-    .. note:: This hides the fact that inputs are active low.
-
-       >>> input_port = pifacecommon.core.GPIOB
-       >>> pifacecommon.core.read_bit(0, input_port)
-       1
-       >>> hex(pifacecommon.core.DigitalInputItem(0, input_port).value)
-       0
-    """
+    """An digital input connected to a pin a PiFace product."""
     # def __init__(self, pin_num, port, board_num=0):
     #     super(DigitalInputItem, self).__init__(pin_num, port, board_num)
 
@@ -194,7 +185,7 @@ class DigitalInputItem(DigitalItem):
     #         self.port,
     #         self.board_num)
 
-    @value.setter
+    @DigitalItem.value.setter
     def value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
 

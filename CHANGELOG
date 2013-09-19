@@ -1,10 +1,28 @@
 Change Log
 ==========
 
+v4.0.0
+------
+- `pifacecommon.core.DigitalPort` now accepts an optional `toggle` and `mask`. `toggle` describes
+  which bits are toggled before given to the user and `mask` describes which
+  bits are allowed through. `toggle` defaults to 0x00 and `mask` defaults to
+  0xff.
+- `pifacecommon.core.DigitalItem` accepts an optional `toggle` argument which
+  defaults to 0.
+- `pifacecommon.core.DigitalInputPort` and `pifacecommon.core.DigitalInputItem`
+  no longer default to toggling the inputs. The value is dependent on the
+  toggle and mask provided by the user.
+  **You now have to manually specify the toggle and mask if you want the bits
+  negated/masked.**
+- `pifacecommon.interrupts.enable_interrupts` can be given a pin mask and a
+  list of board numbers to enable the interrupts rather than just enabling all
+  interrupts on all boards.
+
+
 v3.1.1
 ------
 - Added IODIR_FALLING_EDGE and IODIR_RISING_EDGE to replace IODIR_ON and
-  IODIR_OFF respecitvley. IODIR_ON and IODIR_OFF can still be used in the same
+  IODIR_OFF respectively. IODIR_ON and IODIR_OFF can still be used in the same
   way as before. Falling/Rising Edge are for physical level 1/0, On/Off are for
   logical (programmer) level 1/0.
 

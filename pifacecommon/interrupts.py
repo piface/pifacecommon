@@ -271,17 +271,23 @@ def clear_interrupts(port):
         read(intcap, i)
 
 
-def enable_interrupts(port):
-    """Enables interrupts on the port specified.
+def enable_interrupts(port, pin_map=0xff, board_nums=range(MAX_BOARDS)):
+    """Enables interrupts on the port specified. A pin map can be given to
+    only enable interrupts on some pins. A list of board numbers can also be
+    given to only enable the interrupts on some boards.
 
     :param port: The port to enable interrupts on
         (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
     :type port: int
+    :param pin_map: The pins to enable interrupts on
+    :type pin_map: int
+    :param board_nums: The boards to enable interrupts on.
+    :type board_nums: list
     """
     # enable interrupts
     int_enable_port = GPINTENA if port == GPIOA else GPINTENB
-    for board_index in range(MAX_BOARDS):
-        write(0xff, int_enable_port, board_index)
+    for board_index in board_nums:
+        write(pin_map, int_enable_port, board_index)
 
     try:
         _bring_gpio_interrupt_into_userspace()
@@ -333,7 +339,7 @@ def _wait_until_file_exists(filename):
 
 
 def disable_interrupts(port):
-    """Disables interrupts on the port specified.
+    """Disables interrupts for all pins on the port specified.
 
     :param port: The port to enable interrupts on
         (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
