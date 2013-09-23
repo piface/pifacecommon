@@ -129,7 +129,7 @@ class PortEventListener(object):
 
     TERMINATE_SIGNAL = "astalavista"
 
-    def __init__(self, port, board_num=0):
+    def __init__(self, port, board_num=0, ignore_keyboard_interrupt=True):
         self.port = port
         self.board_num = board_num
         self.pin_function_maps = list()
@@ -140,7 +140,8 @@ class PortEventListener(object):
                 self.port,
                 self.board_num,
                 self.pin_function_maps,
-                self.event_queue))
+                self.event_queue,
+                ignore_keyboard_interrupt))
         self.dispatcher = threading.Thread(
             target=handle_events,
             args=(
@@ -180,6 +181,7 @@ class PortEventListener(object):
         self.event_queue.put(self.TERMINATE_SIGNAL)
         self.dispatcher.join()
         self.detector.terminate()
+        self.detector.join()
 
 
 def _event_matches_pin_function_map(event, pin_function_map):
@@ -189,7 +191,8 @@ def _event_matches_pin_function_map(event, pin_function_map):
     return pin_match and direction_match
 
 
-def watch_port_events(port, board_num, pin_function_maps, event_queue):
+def watch_port_events(port, board_num, pin_function_maps, event_queue,
+                      ignore_keyboard_interrupt=False):
     """Waits for a port event. When a port event occurs it is placed onto the
     event queue.
 
@@ -215,7 +218,13 @@ def watch_port_events(port, board_num, pin_function_maps, event_queue):
 
     while True:
         # wait here until input
-        events = epoll.poll()
+        try:
+            events = epoll.poll()
+        except KeyboardInterrupt as e:
+            if ignore_keyboard_interrupt:
+                pass
+            else:
+                raise e
 
         # find out where the interrupt came from and put it on the event queue
         interrupt_flag = read(intflag, board_num)

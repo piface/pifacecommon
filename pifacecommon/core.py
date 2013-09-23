@@ -68,9 +68,21 @@ class InputDeviceError(Exception):
 
 
 class DigitalPort(object):
-    """A digital port on a PiFace product."""
+    """A digital port on a PiFace product.
 
-    def __init__(self, port, board_num=0, toggle=0x00, mask=0xFF):
+    :param port: The port.
+    :type port: pifacecommon.core.GPPUA, pifacecommon.core.GPPUA
+    :param board_num: The board number.
+    :type board_num: int
+    :param bit_mask: The bit mask defines which bits are cleared.
+        Example: 0xF0 clears lowest nibble.
+    :type bit_mask: int
+    :param toggle_mask: The toggle mask defines which bits are toggled.
+        Example: 0xF0 toggles the upper nibble.
+    :type toggle_mask: int
+    """
+
+    def __init__(self, port, board_num=0, bit_mask=0xFF, toggle_mask=0x00):
         self.port = port
         if board_num < 0 or board_num >= MAX_BOARDS:
             raise RangeError(
@@ -78,8 +90,8 @@ class DigitalPort(object):
             )
         else:
             self.board_num = board_num
-        self.toggle = toggle
-        self.mask = mask
+        self.bit_mask = bit_mask
+        self.toggle_mask = toggle_mask
 
     @property
     def handler(self):
@@ -91,13 +103,15 @@ class DigitalPort(object):
     @property
     def value(self):
         """The value of the digital port."""
-        return self.mask & (
-            self.toggle ^ self.handler.read(self.port, self.board_num))
+        return self.bit_mask & (
+            self.toggle_mask ^ self.handler.read(self.port, self.board_num))
 
     @value.setter
     def value(self, data):
         return self.handler.write(
-            self.mask & (data ^ self.toggle), self.port, self.board_num)
+            self.bit_mask & (data ^ self.toggle_mask),
+            self.port,
+            self.board_num)
 
 
 class DigitalInputPort(DigitalPort):
@@ -146,17 +160,25 @@ class DigitalOutputPort(DigitalPort):
 class DigitalItem(DigitalPort):
     """A digital item connected to a pin on a PiFace product.
     Has most of the same properties of a Digital Port.
+
+    :param port: The port.
+    :type port: pifacecommon.core.GPPUA, pifacecommon.core.GPPUA
+    :param board_num: The board number.
+    :type board_num: int
+    :param toggle_mask: The toggle mask defines if the value is toggled.
+        Example: 1 toggles the bit value.
+    :type toggle_mask: int
     """
 
-    def __init__(self, pin_num, port, board_num=0, toggle=0):
+    def __init__(self, pin_num, port, board_num=0, toggle_mask=0):
         super(DigitalItem, self).__init__(port, board_num)
         self.pin_num = pin_num
-        self.toggle = toggle
+        self.toggle_mask = toggle_mask
 
     @property
     def value(self):
         """The value of the digital item."""
-        return self.toggle ^ self.handler.read_bit(
+        return self.toggle_mask ^ self.handler.read_bit(
             self.pin_num,
             self.port,
             self.board_num)
@@ -164,7 +186,7 @@ class DigitalItem(DigitalPort):
     @value.setter
     def value(self, data):
         return self.handler.write_bit(
-            self.toggle ^ data,
+            self.toggle_mask ^ data,
             self.pin_num,
             self.port,
             self.board_num)

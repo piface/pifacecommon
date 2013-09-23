@@ -17,6 +17,8 @@ v4.0.0
 - `pifacecommon.interrupts.enable_interrupts` can be given a pin mask and a
   list of board numbers to enable the interrupts rather than just enabling all
   interrupts on all boards.
+- Deactivating interrupts now waits for dispatcher process after calling
+  terminate. Dispatcher processes ignore KeyboardInterrupt (fix for pifacedigital issue #8).
 
 
 v3.1.1
