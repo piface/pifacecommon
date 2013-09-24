@@ -225,6 +225,11 @@ def watch_port_events(port, board_num, pin_function_maps, event_queue,
                 pass
             else:
                 raise e
+        except IOError as e:
+            # ignore "Interrupted system call" error.
+            # I don't really like this solution. Ignoring problems is bad!
+            if e.errno != errno.EINTR:
+                raise
 
         # find out where the interrupt came from and put it on the event queue
         interrupt_flag = read(intflag, board_num)

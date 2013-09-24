@@ -19,6 +19,7 @@ v4.0.0
   interrupts on all boards.
 - Deactivating interrupts now waits for dispatcher process after calling
   terminate. Dispatcher processes ignore KeyboardInterrupt (fix for pifacedigital issue #8).
+- Ignored "Interrupted system call" error in `watch_port_events`.
 
 
 v3.1.1
