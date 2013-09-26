@@ -5,17 +5,22 @@ Installation
 Install
 =======
 
+Make sure you are using the lastest version of Raspbian (``sudo apt-get update
+&& sudo apt-get upgrade``).
+
 Automatically
 -------------
 
-Download the latest debian package from
-`here <https://github.com/piface/pifacecommon/releases>`_. Then install with:
+Install pifacecommon (for Python 3 and 2) with the following command::
 
-.. parsed-literal::
+    $ sudo apt-get install python{,3}-pifacecommon
 
-    $ sudo dpkg -i python3-pifacecommon\_\ |version|-1_all.deb
+You will also need to set up automatic loading of the SPI kernel module which
+can be done with the lastest version of ``raspi-config``. Run::
 
-.. note:: Python 2 users will want to use python-pifacecommon\_\ |version|-1_all.deb.
+    $ sudo raspi-config
+
+Then navigate to ``Advanced Options``, ``SPI`` and select ``yes``.
 
 You may need to reboot.
 

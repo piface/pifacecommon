@@ -19,6 +19,7 @@ v4.0.0
   interrupts on all boards.
 - Deactivating interrupts now waits for dispatcher process after calling
   terminate. Dispatcher processes ignore KeyboardInterrupt (fix for pifacedigital issue #8).
+- Updated installation instructions.
 
 
 v3.1.1
