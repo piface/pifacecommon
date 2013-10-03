@@ -48,11 +48,25 @@ class Timeout(Exception):
 class InterruptEvent(object):
     """An interrupt event."""
     def __init__(
-            self, interrupt_flag, interrupt_capture, board_num, timestamp):
+            self, interrupt_flag, interrupt_capture, hardware_addr, timestamp):
         self.interrupt_flag = interrupt_flag
         self.interrupt_capture = interrupt_capture
-        self.board_num = board_num
+        self.hardware_addr = hardware_addr
         self.timestamp = timestamp
+
+    def __str__(self):
+        s = "Flag:      {flag}\n" \
+            "Capture:   {capture}\n" \
+            "Pin num:   {pin_num}\n" \
+            "Direction: {direction}\n" \
+            "Hardware Address: {hardware_addr}\n" \
+            "Timestamp: {timestamp}"
+        return s.format(flag=bin(self.interrupt_flag),
+                        capture=bin(self.interrupt_capture),
+                        pin_num=self.pin_num,
+                        direction=self.direction,
+                        hardware_addr=self.hardware_addr,
+                        timestamp=self.timestamp)
 
     @property
     def pin_num(self):
@@ -79,6 +93,12 @@ class PinFunctionMap(FunctionMap):
         self.direction = direction
         super(PinFunctionMap, self).__init__(callback, settle_time)
 
+    def __str__(self):
+        s = "Pin num:  {pin_num}\n" \
+            "Direction:{direction}\n"
+        return s.format(pin_num=self.pin_num,
+                        direction=self.direction)
+
 
 class EventQueue(object):
     """Stores events in a queue."""
@@ -93,14 +113,22 @@ class EventQueue(object):
         settle time for that pin/direction. Such events are assumed to be
         bouncing.
         """
+        # print("Trying to add event:")
+        # print(event)
         # find out the pin settle time
         for pin_function_map in self.pin_function_maps:
-            if pin_function_map.pin_num == event.pin_num and \
-                    pin_function_map.direction == event.direction:
+            if _event_matches_pin_function_map(event, pin_function_map):
+            # if pin_function_map.pin_num == event.pin_num and (
+            #         pin_function_map.direction == event.direction or
+            #         pin_function_map.direction == IODIR_BOTH):
                 pin_settle_time = pin_function_map.settle_time
+                # print("EventQueue: Found event in map.")
                 break
         else:
             # Couldn't find event in map, don't bother adding it to the queue
+            # print("EventQueue: Couldn't find event in map:")
+            # for pin_function_map in self.pin_function_maps:
+            #     print(pin_function_map)
             return
 
         threshold_time = self.last_event_time[event.pin_num] + pin_settle_time
@@ -129,16 +157,16 @@ class PortEventListener(object):
 
     TERMINATE_SIGNAL = "astalavista"
 
-    def __init__(self, port, board_num=0, ignore_keyboard_interrupt=True):
+    def __init__(self, port, hardware_addr=0, ignore_keyboard_interrupt=True):
         self.port = port
-        self.board_num = board_num
+        self.hardware_addr = hardware_addr
         self.pin_function_maps = list()
         self.event_queue = EventQueue(self.pin_function_maps)
         self.detector = multiprocessing.Process(
             target=watch_port_events,
             args=(
                 self.port,
-                self.board_num,
+                self.hardware_addr,
                 self.pin_function_maps,
                 self.event_queue,
                 ignore_keyboard_interrupt))
@@ -184,22 +212,43 @@ class PortEventListener(object):
         self.detector.join()
 
 
+class GPIOInterruptDevice(object):
+    """A device that interrupts using the GPIO pins."""
+    def gpio_interrupts_enable(self):
+        """Enables GPIO interrupts."""
+        try:
+            bring_gpio_interrupt_into_userspace()
+            set_gpio_interrupt_edge()
+        except Timeout as e:
+            raise InterruptEnableException(
+                "There was an error bringing gpio%d into userspace. %s" %
+                (GPIO_INTERRUPT_PIN, e.message)
+            )
+
+    def gpio_interrupts_disable(self, port):
+        """Disables gpio interrupts."""
+        set_gpio_interrupt_edge('none')
+        deactivate_gpio_interrupt()
+
+
 def _event_matches_pin_function_map(event, pin_function_map):
+    # print("pin num", event.pin_num, pin_function_map.pin_num)
+    # print("direction", event.direction, pin_function_map.direction)
     pin_match = event.pin_num == pin_function_map.pin_num
     direction_match = pin_function_map.direction is None
     direction_match |= event.direction == pin_function_map.direction
     return pin_match and direction_match
 
 
-def watch_port_events(port, board_num, pin_function_maps, event_queue,
+def watch_port_events(port, hardware_addr, pin_function_maps, event_queue,
                       ignore_keyboard_interrupt=False):
     """Waits for a port event. When a port event occurs it is placed onto the
     event queue.
 
     :param port: The port we are waiting for interrupts on (GPIOA/GPIOB).
     :type port: int
-    :param board_num: The board we are waiting for interrupts on.
-    :type board_num: int
+    :param hardware_addr: The board we are waiting for interrupts on.
+    :type hardware_addr: int
     :param pin_function_maps: A list of classes that have inheritted from
         :class:`FunctionMap`\ s describing what to do with events.
     :type pin_function_maps: list
@@ -232,13 +281,15 @@ def watch_port_events(port, board_num, pin_function_maps, event_queue,
                 raise
 
         # find out where the interrupt came from and put it on the event queue
-        interrupt_flag = read(intflag, board_num)
+        interrupt_flag = read(intflag, hardware_addr)
+        print("TEST: interrupt_flag is", bin(interrupt_flag))
         if interrupt_flag == 0:
             continue  # The interrupt has not been flagged on this board
         else:
-            interrupt_capture = read(intcapture, board_num)
+            interrupt_capture = read(intcapture, hardware_addr)
+            print("TEST: interrupt capture is", bin(interrupt_capture))
             event_queue.add_event(InterruptEvent(
-                interrupt_flag, interrupt_capture, board_num, time.time()))
+                interrupt_flag, interrupt_capture, hardware_addr, time.time()))
 
     epoll.close()
 
@@ -260,7 +311,9 @@ def handle_events(
         causes this function to exit.
     """
     while True:
+        # print("HANDLE: Waiting for events!")
         event = event_queue.get()
+        # print("HANDLE: It's an event!")
         if event == terminate_signal:
             return
         # if matching get the callback function, else function is None
@@ -276,44 +329,45 @@ def handle_events(
             function(event)
 
 
-def clear_interrupts(port):
-    """Clears the interrupt flags by 'read'ing the capture register
-    on all boards.
-    """
-    intcap = INTCAPA if port == GPIOA else INTCAPB
-    for i in range(MAX_BOARDS):
-        read(intcap, i)
+# def clear_interrupts(port):
+#     """Clears the interrupt flags by 'read'ing the capture register
+#     on all boards.
+#     """
+#     intcap = INTCAPA if port == GPIOA else INTCAPB
+#     for i in range(MAX_BOARDS):
+#         read(intcap, i)
 
 
-def enable_interrupts(port, pin_map=0xff, board_nums=range(MAX_BOARDS)):
-    """Enables interrupts on the port specified. A pin map can be given to
-    only enable interrupts on some pins. A list of board numbers can also be
-    given to only enable the interrupts on some boards.
+# def enable_interrupts(port, pin_map=0xff, hardware_addrs=range(MAX_BOARDS)):
+#     """Enables interrupts on the port specified. A pin map can be given to
+#     only enable interrupts on some pins. A list of board numbers can also be
+#     given to only enable the interrupts on some boards.
 
-    :param port: The port to enable interrupts on
-        (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
-    :type port: int
-    :param pin_map: The pins to enable interrupts on
-    :type pin_map: int
-    :param board_nums: The boards to enable interrupts on.
-    :type board_nums: list
-    """
-    # enable interrupts
-    int_enable_port = GPINTENA if port == GPIOA else GPINTENB
-    for board_index in board_nums:
-        write(pin_map, int_enable_port, board_index)
+#     :param port: The port to enable interrupts on
+#         (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
+#     :type port: int
+#     :param pin_map: The pins to enable interrupts on
+#     :type pin_map: int
+#     :param hardware_addrs: The boards to enable interrupts on.
+#     :type hardware_addrs: list
+#     """
+#     # enable interrupts
+#     int_enable_port = GPINTENA if port == GPIOA else GPINTENB
+#     for board_index in hardware_addrs:
+#         write(pin_map, int_enable_port, board_index)
 
-    try:
-        _bring_gpio_interrupt_into_userspace()
-        _set_gpio_interrupt_edge()
-    except Timeout as e:
-        raise InterruptEnableException(
-            "There was an error bringing gpio%d into userspace. %s" %
-            (GPIO_INTERRUPT_PIN, e.message)
-        )
+#     try:
+#         bring_gpio_interrupt_into_userspace()
+#         set_gpio_interrupt_edge()
+#     except Timeout as e:
+#         raise InterruptEnableException(
+#             "There was an error bringing gpio%d into userspace. %s" %
+#             (GPIO_INTERRUPT_PIN, e.message)
+#         )
 
 
-def _bring_gpio_interrupt_into_userspace():
+def bring_gpio_interrupt_into_userspace():  # activate gpio interrupt
+    """Bring the interrupt pin on the GPIO into Linux userspace."""
     try:
         # is it already there?
         with open(GPIO_INTERRUPT_DEVICE_VALUE):
@@ -323,23 +377,39 @@ def _bring_gpio_interrupt_into_userspace():
         with open(GPIO_EXPORT_FILE, 'w') as export_file:
             export_file.write(str(GPIO_INTERRUPT_PIN))
 
-        _wait_until_file_exists(GPIO_INTERRUPT_DEVICE_VALUE)
+        wait_until_file_exists(GPIO_INTERRUPT_DEVICE_VALUE)
 
 
-def _set_gpio_interrupt_edge():
+def deactivate_gpio_interrupt():
+    """Remove the GPIO interrupt pin from Linux userspace."""
+    with open(GPIO_UNEXPORT_FILE, 'w') as unexport_file:
+        unexport_file.write(str(GPIO_INTERRUPT_PIN))
+
+
+def set_gpio_interrupt_edge(edge='falling'):
+    """Set the interrupt edge on the userspace GPIO pin.
+
+    :param edge: The interrupt edge ('none', 'falling', 'rising').
+    :type edge: string
+    """
     # we're only interested in the falling edge (1 -> 0)
     start_time = time.time()
     time_limit = start_time + FILE_IO_TIMEOUT
     while time.time() < time_limit:
         try:
             with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio_edge:
-                gpio_edge.write('falling')
+                gpio_edge.write(edge)
                 return
         except IOError:
             pass
 
 
-def _wait_until_file_exists(filename):
+def wait_until_file_exists(filename):
+    """Wait until a file exists.
+
+    :param filename: The name of the file to wait for.
+    :type filename: string
+    """
     start_time = time.time()
     time_limit = start_time + FILE_IO_TIMEOUT
     while time.time() < time_limit:
@@ -352,22 +422,22 @@ def _wait_until_file_exists(filename):
     raise Timeout("Waiting too long for %s." % filename)
 
 
-def disable_interrupts(port):
-    """Disables interrupts for all pins on the port specified.
+# def disable_interrupts(port):
+#     """Disables interrupts for all pins on the port specified.
 
-    :param port: The port to enable interrupts on
-        (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
-    :type port: int
-    """
-    # neither edgez
-    with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio25edge:
-        gpio25edge.write('none')
+#     :param port: The port to enable interrupts on
+#         (pifacecommon.core.GPIOA, pifacecommon.core.GPIOB)
+#     :type port: int
+#     """
+#     # neither edgez
+#     with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio25edge:
+#         gpio25edge.write('none')
 
-    # remove the pin from userspace
-    with open(GPIO_UNEXPORT_FILE, 'w') as unexport_file:
-        unexport_file.write(str(GPIO_INTERRUPT_PIN))
+#     # remove the pin from userspace
+#     with open(GPIO_UNEXPORT_FILE, 'w') as unexport_file:
+#         unexport_file.write(str(GPIO_INTERRUPT_PIN))
 
-    # disable the interrupt
-    int_enable_port = GPINTENA if port == GPIOA else GPINTENB
-    for board_index in range(MAX_BOARDS):
-        write(0, int_enable_port, board_index)
+#     # disable the interrupt
+#     int_enable_port = GPINTENA if port == GPIOA else GPINTENB
+#     for board_index in range(MAX_BOARDS):
+#         write(0, int_enable_port, board_index)

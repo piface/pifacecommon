@@ -5,6 +5,7 @@ from .core import (
     get_bit_num,
 )
 from .spi import SPIDevice
+import pifacecommon.interrupts
 
 
 # Python 2 support
@@ -36,7 +37,6 @@ GPIOB = 0x13  # port B
 OLATA = 0x14  # output latch A
 OLATB = 0x15  # output latch B
 
-
 # I/O config
 BANK_OFF = 0x00  # addressing mode
 BANK_ON = 0x80
@@ -52,6 +52,8 @@ ODR_ON = 0x04  # open drain for interupts
 ODR_OFF = 0x00
 INTPOL_HIGH = 0x02  # interupt polarity
 INTPOL_LOW = 0x00
+
+LOWER_NIBBLE, UPPER_NIBBLE = range(2)
 
 
 class MCP23S17(SPIDevice):
@@ -152,7 +154,7 @@ class MCP23S17(SPIDevice):
         :type address: int
         :returns: int -- the bit value from the address
         """
-        value = read(address, self.hardware_addr)
+        value = self.read(address)
         bit_mask = get_bit_mask(bit_num)
         return 1 if value & bit_mask else 0
 
@@ -167,20 +169,34 @@ class MCP23S17(SPIDevice):
         :type address: int
         """
         bit_mask = get_bit_mask(bit_num)
-        old_byte = read(address, self.hardware_addr)
+        old_byte = self.read(address)
          # generate the new byte
         if value:
             new_byte = old_byte | bit_mask
         else:
             new_byte = old_byte & ~bit_mask
-        write(new_byte, address, self.hardware_addr)
+        self.write(new_byte, address)
+
+    def clear_interrupts(self, port):
+        """Clears the interrupt flags by 'read'ing the capture register."""
+        self.read(INTCAPA if port == GPIOA else INTCAPB)
 
 
-class MCP23S17Register(object):
-    """An 8 bit register inside an MCP23S17."""
+class MCP23S17RegisterBase(object):
+    """Base class for objects on an 8-bit register inside an MCP23S17."""
     def __init__(self, address, chip):
         self.address = address
         self.chip = chip
+
+
+class MCP23S17Register(MCP23S17RegisterBase):
+    """An 8-bit register inside an MCP23S17."""
+    def __init__(self, address, chip):
+        super(MCP23S17Register, self).__init__(address, chip)
+        self.lower_nibble = MCP23S17RegisterNibble(LOWER_NIBBLE, self.address,
+                                                   self.chip)
+        self.upper_nibble = MCP23S17RegisterNibble(UPPER_NIBBLE, self.address,
+                                                   self.chip)
         self.bits = [MCP23S17RegisterBit(i, self.address, self.chip)
                      for i in range(8)]
 
@@ -192,13 +208,117 @@ class MCP23S17Register(object):
     def value(self, v):
         self.chip.write(v, self.address)
 
+    def all_high(self):
+        self.value = 0xFF
 
-class MCP23S17RegisterBit(object):
-    """A single bit inside register inside an MCP23S17."""
+    def all_low(self):
+        self.value = 0x00
+
+    all_on = all_high
+    all_off = all_low
+
+    def toggle(self):
+        self.value = 0xFF ^ self.value
+
+
+class MCP23S17RegisterNeg(MCP23S17Register):
+    """An negated 8-bit register inside an MCP23S17."""
+    def __init__(self, address, chip):
+        super(MCP23S17RegisterNeg, self).__init__(address, chip)
+        self.lower_nibble = MCP23S17RegisterNibbleNeg(LOWER_NIBBLE,
+                                                      self.address,
+                                                      self.chip)
+        self.upper_nibble = MCP23S17RegisterNibbleNeg(UPPER_NIBBLE,
+                                                      self.address,
+                                                      self.chip)
+        self.bits = [MCP23S17RegisterBitNeg(i, self.address, self.chip)
+                     for i in range(8)]
+
+    @property
+    def value(self):
+        return 0xFF ^ self.chip.read(self.address)
+
+    @value.setter
+    def value(self, v):
+        self.chip.write(0xFF ^ v, self.address)
+
+
+class MCP23S17RegisterNibble(MCP23S17RegisterBase):
+    """An 4-bit nibble inside a register inside an MCP23S17."""
+    def __init__(self, nibble, address, chip):
+        super(MCP23S17RegisterNibble, self).__init__(address, chip)
+        self.nibble = nibble
+        range_start = 0 if self.nibble == LOWER_NIBBLE else 4
+        range_end = 4 if self.nibble == LOWER_NIBBLE else 8
+        self.bits = [MCP23S17RegisterBit(i, self.address, self.chip)
+                     for i in range(range_start, range_end)]
+
+    @property
+    def value(self):
+        if self.nibble == LOWER_NIBBLE:
+            return self.chip.read(self.address) & 0xF
+        elif self.nibble == UPPER_NIBBLE:
+            return (self.chip.read(self.address) & 0xF0) >> 4
+
+    @value.setter
+    def value(self, v):
+        register_value = self.chip.read(self.address)
+        if self.nibble == LOWER_NIBBLE:
+            register_value &= 0xF0  # clear
+            register_value ^= (v & 0x0F)  # set
+        elif self.nibble == UPPER_NIBBLE:
+            register_value &= 0x0F  # clear
+            register_value ^= ((v << 4) & 0xF0)  # set
+        self.chip.write(register_value, self.address)
+
+    def all_high(self):
+        self.value = 0xF
+
+    def all_low(self):
+        self.value = 0x0
+
+    all_on = all_high
+    all_off = all_low
+
+    def toggle(self):
+        self.value = 0xF ^ self.value
+
+
+class MCP23S17RegisterNibbleNeg(MCP23S17RegisterNibble):
+    """A negated 4-bit nibble inside a register inside an MCP23S17."""
+    def __init__(self, nibble, address, chip):
+        super(MCP23S17RegisterNibbleNeg, self).__init__(nibble, address, chip)
+        self.nibble = nibble
+        range_start = 0 if self.nibble == LOWER_NIBBLE else 4
+        range_end = 4 if self.nibble == LOWER_NIBBLE else 8
+        self.bits = [MCP23S17RegisterBitNeg(i, self.address, self.chip)
+                     for i in range(range_start, range_end)]
+
+    @property
+    def value(self):
+        if self.nibble == LOWER_NIBBLE:
+            v = self.chip.read(self.address) & 0xF
+        elif self.nibble == UPPER_NIBBLE:
+            v = (self.chip.read(self.address) & 0xF0) >> 4
+        return 0xF ^ v
+
+    @value.setter
+    def value(self, v):
+        register_value = self.chip.read(self.address)
+        if self.nibble == LOWER_NIBBLE:
+            register_value &= 0xF0  # clear
+            register_value ^= (v & 0x0F ^ 0x0F)  # set
+        elif self.nibble == UPPER_NIBBLE:
+            register_value &= 0x0F  # clear
+            register_value ^= ((v << 4) & 0xF0 ^ 0xF0)  # set
+        self.chip.write(register_value, self.address)
+
+
+class MCP23S17RegisterBit(MCP23S17RegisterBase):
+    """A bit inside register inside an MCP23S17."""
     def __init__(self, bit_num, address, chip):
+        super(MCP23S17RegisterBit, self).__init__(address, chip)
         self.bit_num = bit_num
-        self.address = address
-        self.chip = chip
 
     @property
     def value(self):
@@ -207,3 +327,29 @@ class MCP23S17RegisterBit(object):
     @value.setter
     def value(self, v):
         self.chip.write_bit(v, self.bit_num, self.address)
+
+    def set_high(self):
+        self.value = 1
+
+    def set_low(self):
+        self.value = 0
+
+    turn_on = set_high
+    turn_off = set_low
+
+    def toggle(self):
+        self.value = 1 ^ self.value
+
+
+class MCP23S17RegisterBitNeg(MCP23S17RegisterBit):
+    """A negated bit inside register inside an MCP23S17."""
+    def __init__(self, bit_num, address, chip):
+        super(MCP23S17RegisterBitNeg, self).__init__(bit_num, address, chip)
+
+    @property
+    def value(self):
+        return 1 ^ self.chip.read_bit(self.bit_num, self.address)
+
+    @value.setter
+    def value(self, v):
+        self.chip.write_bit(v ^ 1, self.bit_num, self.address)
