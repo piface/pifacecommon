@@ -4,10 +4,19 @@ Installation
 
 Install
 =======
+apt-get
+-------
+Make sure you are using the lastest version of Raspbian::
 
-Automatically
--------------
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
 
+Install ``pifacecommon`` (for Python 3 and 2) with the following command::
+
+    $ sudo apt-get install python{,3}-pifacecommon
+
+dpkg
+----
 Download the latest debian package from
 `here <https://github.com/piface/pifacecommon/releases>`_. Then install with:
 

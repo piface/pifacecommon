@@ -57,7 +57,36 @@ LOWER_NIBBLE, UPPER_NIBBLE = range(2)
 
 
 class MCP23S17(SPIDevice):
-    """Microchip's MCP23S17: A 16-Bit I/O Expander with Serial Interface."""
+    """Microchip's MCP23S17: A 16-Bit I/O Expander with Serial Interface.
+
+    :attribute: iodira/iodirb -- Controls the direction of the data I/O.
+    :attribute: ipola/ipolb --This register allows the user to configure
+                              the polarity on the corresponding GPIO port
+                              bits.
+    :attribute: gpintena/gpintenb -- The GPINTEN register controls the
+                                     interrupt-onchange feature for each
+                                     pin.
+    :attribute: defvala/defvalb --The default comparison value is
+                                  configured in the DEFVAL register.
+    :attribute: intcona/intconb --The INTCON register controls how the
+                                  associated pin value is compared for
+                                  the interrupt-on-change feature.
+    :attribute: iocon --The IOCON register contains several bits for
+                        configuring the device.
+    :attribute: gppua/gppub --The GPPU register controls the pull-up
+                              resistors for the port pins.
+    :attribute: intfa/intfb --The INTF register reflects the interrupt
+                              condition on the port pins of any pin that
+                              is enabled for interrupts via the GPINTEN
+                              register.
+    :attribute: intcapa/intcapb -- The INTCAP register captures the GPIO
+                                   port value at the time the interrupt
+                                   occurred.
+    :attribute: gpioa/gpiob -- The GPIO register reflects the value on
+                               the port.
+    :attribute: olata/olatb -- The OLAT register provides access to the
+                               output latches.
+    """
     def __init__(self, hardware_addr=0, bus=0, chip_select=0):
         super(MCP23S17, self).__init__(bus, chip_select)
         self.hardware_addr = hardware_addr

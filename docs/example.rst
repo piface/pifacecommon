@@ -1,14 +1,17 @@
 #######
 Example
 #######
-Here are some examples of how to use pifacecommon::
+Here are some examples of how to use pifacecommon.
 
-    $ python3
-    >>> import pifacecommon
-    >>> pifacecommon.core.init()
-    >>> pifacecommon.core.write(0xAA, pifacecommon.core.GPIOA)
-    >>> pifacecommon.core.read(pifacecommon.core.GPIOA)
-    0xAA
-    >>> pifacecommon.core.write_bit(1, 0, pifacecommon.core.GPIOA)
-    >>> pifacecommon.core.read_bit(0, pifacecommon.core.GPIOA)
+MCP23S17
+========
+
+::
+
+    >>> import pifacecommon.mcp23s17
+    >>> mcp = pifacecommon.mcp23s17.MCP23S17()
+    >>> mcp.gpioa.value = 0xAA
+    >>> mcp.gpioa.value
+    170
+    >>> mcp.gpioa.bits[3].value
     1

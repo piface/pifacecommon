@@ -2,20 +2,8 @@ import threading
 import multiprocessing
 import select
 import time
-from .core import (
-    MAX_BOARDS,
-    GPIOA,
-    GPIOB,
-    GPINTENA,
-    GPINTENB,
-    INTFA,
-    INTFB,
-    INTCAPA,
-    INTCAPB,
-    get_bit_num,
-    read,
-    write,
-)
+from .core import get_bit_num
+import pifacecommon.mcp23s17
 
 
 # interrupts
@@ -46,26 +34,28 @@ class Timeout(Exception):
 
 
 class InterruptEvent(object):
-    """An interrupt event."""
+    """An interrupt event containting the interrupt flag and capture register
+    values, the chip object from which the interrupt occured and a timestamp.
+    """
     def __init__(
-            self, interrupt_flag, interrupt_capture, hardware_addr, timestamp):
+            self, interrupt_flag, interrupt_capture, chip, timestamp):
         self.interrupt_flag = interrupt_flag
         self.interrupt_capture = interrupt_capture
-        self.hardware_addr = hardware_addr
+        self.chip = chip
         self.timestamp = timestamp
 
     def __str__(self):
-        s = "Flag:      {flag}\n" \
-            "Capture:   {capture}\n" \
-            "Pin num:   {pin_num}\n" \
-            "Direction: {direction}\n" \
-            "Hardware Address: {hardware_addr}\n" \
-            "Timestamp: {timestamp}"
+        s = "interrupt_flag:    {flag}\n" \
+            "interrupt_capture: {capture}\n" \
+            "pin_num:           {pin_num}\n" \
+            "direction:         {direction}\n" \
+            "chip:              {chip}\n" \
+            "timestamp:         {timestamp}"
         return s.format(flag=bin(self.interrupt_flag),
                         capture=bin(self.interrupt_capture),
                         pin_num=self.pin_num,
                         direction=self.direction,
-                        hardware_addr=self.hardware_addr,
+                        chip=self.chip,
                         timestamp=self.timestamp)
 
     @property
@@ -149,7 +139,7 @@ class PortEventListener(object):
     >>> def print_flag(event):
     ...     print(event.interrupt_flag)
     ...
-    >>> port = pifacecommon.core.GPIOA
+    >>> port = pifacecommon.mcp23s17.GPIOA
     >>> listener = pifacecommon.interrupts.PortEventListener(port)
     >>> listener.register(0, pifacecommon.interrupts.IODIR_ON, print_flag)
     >>> listener.activate()
@@ -157,19 +147,19 @@ class PortEventListener(object):
 
     TERMINATE_SIGNAL = "astalavista"
 
-    def __init__(self, port, hardware_addr=0, ignore_keyboard_interrupt=True):
+    def __init__(self, port, chip, return_after_kbdint=True):
         self.port = port
-        self.hardware_addr = hardware_addr
+        self.chip = chip
         self.pin_function_maps = list()
         self.event_queue = EventQueue(self.pin_function_maps)
         self.detector = multiprocessing.Process(
             target=watch_port_events,
             args=(
                 self.port,
-                self.hardware_addr,
+                self.chip,
                 self.pin_function_maps,
                 self.event_queue,
-                ignore_keyboard_interrupt))
+                return_after_kbdint))
         self.dispatcher = threading.Thread(
             target=handle_events,
             args=(
@@ -225,7 +215,7 @@ class GPIOInterruptDevice(object):
                 (GPIO_INTERRUPT_PIN, e.message)
             )
 
-    def gpio_interrupts_disable(self, port):
+    def gpio_interrupts_disable(self):
         """Disables gpio interrupts."""
         set_gpio_interrupt_edge('none')
         deactivate_gpio_interrupt()
@@ -240,15 +230,15 @@ def _event_matches_pin_function_map(event, pin_function_map):
     return pin_match and direction_match
 
 
-def watch_port_events(port, hardware_addr, pin_function_maps, event_queue,
-                      ignore_keyboard_interrupt=False):
+def watch_port_events(port, chip, pin_function_maps, event_queue,
+                      return_after_kbdint=False):
     """Waits for a port event. When a port event occurs it is placed onto the
     event queue.
 
     :param port: The port we are waiting for interrupts on (GPIOA/GPIOB).
     :type port: int
-    :param hardware_addr: The board we are waiting for interrupts on.
-    :type hardware_addr: int
+    :param chip: The chip we are waiting for interrupts on.
+    :type chip: :class:`pifacecommon.mcp23s17.MCP23S17`
     :param pin_function_maps: A list of classes that have inheritted from
         :class:`FunctionMap`\ s describing what to do with events.
     :type pin_function_maps: list
@@ -260,18 +250,13 @@ def watch_port_events(port, hardware_addr, pin_function_maps, event_queue,
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
 
-    # a bit map showing what caused the interrupt
-    intflag = INTFA if port == GPIOA else INTFB
-    # a snapshot of the port when interrupt occured
-    intcapture = INTCAPA if port == GPIOA else INTCAPB
-
     while True:
         # wait here until input
         try:
             events = epoll.poll()
         except KeyboardInterrupt as e:
-            if ignore_keyboard_interrupt:
-                pass
+            if return_after_kbdint:
+                return
             else:
                 raise e
         except IOError as e:
@@ -281,15 +266,20 @@ def watch_port_events(port, hardware_addr, pin_function_maps, event_queue,
                 raise
 
         # find out where the interrupt came from and put it on the event queue
-        interrupt_flag = read(intflag, hardware_addr)
-        print("TEST: interrupt_flag is", bin(interrupt_flag))
+        if port == pifacecommon.mcp23s17.GPIOA:
+            interrupt_flag = chip.intfa.value
+        else:
+            interrupt_flag = chip.intfb.value
+
         if interrupt_flag == 0:
             continue  # The interrupt has not been flagged on this board
         else:
-            interrupt_capture = read(intcapture, hardware_addr)
-            print("TEST: interrupt capture is", bin(interrupt_capture))
+            if port == pifacecommon.mcp23s17.GPIOA:
+                interrupt_capture = chip.intcapa.value
+            else:
+                interrupt_capture = chip.intcapb.value
             event_queue.add_event(InterruptEvent(
-                interrupt_flag, interrupt_capture, hardware_addr, time.time()))
+                interrupt_flag, interrupt_capture, chip, time.time()))
 
     epoll.close()
 

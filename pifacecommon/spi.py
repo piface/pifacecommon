@@ -15,7 +15,7 @@ class SPIInitError(Exception):
 
 class SPIDevice(object):
     """An SPI Device at /dev/spi<bus>.<chip_select>."""
-    def __init__(self, bus=0, chip_select=0, callback=None):
+    def __init__(self, bus=0, chip_select=0, spi_callback=None):
         """Initialises the SPI device file descriptor.
 
         :param bus: The SPI device bus number
@@ -26,7 +26,7 @@ class SPIDevice(object):
         """
         self.bus = bus
         self.chip_select = chip_select
-        self.callback = callback
+        self.spi_callback = spi_callback
         spi_device = "%s%d.%d" % (SPIDEV, self.bus, self.chip_select)
         try:
             self.fd = posix.open(spi_device, posix.O_RDWR)
@@ -60,8 +60,8 @@ class SPIDevice(object):
             len=ctypes.sizeof(wbuffer)
         )
 
-        if self.callback is not None:
-            self.callback(bytes_to_send)
+        if self.spi_callback is not None:
+            self.spi_callback(bytes_to_send)
         # send the spi command
         ioctl(self.fd, SPI_IOC_MESSAGE(1), transfer)
         return ctypes.string_at(rbuffer, ctypes.sizeof(rbuffer))

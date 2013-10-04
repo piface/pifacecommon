@@ -1,8 +1,7 @@
 pifacecommon
 ============
 
-Common functions for interacting with PiFace products. Also available from
-[PyPI](https://pypi.python.org/pypi/pifacecommon/)
+Common functions for interacting with PiFace products.
 
 
 Documentation
@@ -17,9 +16,11 @@ You can also find the documentation installed at:
 Install
 =======
 
-Download the latest release from
-[here](https://github.com/piface/pifacecommon/releases). Then install with:
+Make sure you are using the lastest version of Raspbian:
 
-    $ dpkg -i python3-pifacecommon_2.0.2-1_all.deb
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
 
-You may need to reboot.
+Install `pifacecommon` (for Python 3 and 2) with the following command:
+
+    $ sudo apt-get install python{,3}-pifacecommon
