@@ -3,22 +3,11 @@ Change Log
 
 v4.0.0
 ------
-- `pifacecommon.core.DigitalPort` now accepts an optional `toggle` and `mask`. `toggle` describes
-  which bits are toggled before given to the user and `mask` describes which
-  bits are allowed through. `toggle` defaults to 0x00 and `mask` defaults to
-  0xff.
-- `pifacecommon.core.DigitalItem` accepts an optional `toggle` argument which
-  defaults to 0.
-- `pifacecommon.core.DigitalInputPort` and `pifacecommon.core.DigitalInputItem`
-  no longer default to toggling the inputs. The value is dependent on the
-  toggle and mask provided by the user.
-  **You now have to manually specify the toggle and mask if you want the bits
-  negated/masked.**
-- `pifacecommon.interrupts.enable_interrupts` can be given a pin mask and a
-  list of board numbers to enable the interrupts rather than just enabling all
-  interrupts on all boards.
-- Deactivating interrupts now waits for dispatcher process after calling
-  terminate. Dispatcher processes ignore KeyboardInterrupt (fix for pifacedigital issue #8).
+- Ignored "Interrupted system call" error in `watch_port_events`.
+- Rewrite main functions into chip specific (MCP23S17) class.
+- GPIOInterruptDevice class replacing core GPIO enable/disable functions.
+- SPIDevice class replacing spisend function. Can now add in spi_callback
+  function which is called before each SPI write.
 - Updated installation instructions.
 
 

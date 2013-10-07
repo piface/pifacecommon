@@ -31,5 +31,3 @@ can be done with the lastest version of `raspi-config`. Run:
     $ sudo raspi-config
 
 Then navigate to `Advanced Options`, `SPI` and select `yes`.
-
-You may need to reboot.
