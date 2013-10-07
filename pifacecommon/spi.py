@@ -28,6 +28,13 @@ class SPIDevice(object):
         self.chip_select = chip_select
         self.spi_callback = spi_callback
         spi_device = "%s%d.%d" % (SPIDEV, self.bus, self.chip_select)
+        self.open_fd(spi_device)
+
+    def __del__(self):
+        if self.fd is not None:
+            self.close_fd()
+
+    def open_fd(self, spi_device):
         try:
             self.fd = posix.open(spi_device, posix.O_RDWR)
         except OSError as e:
@@ -36,7 +43,7 @@ class SPIDevice(object):
                 % (spi_device, SPI_HELP_LINK)
             )  # from e  # from is only available in Python 3
 
-    def __del__(self):
+    def close_fd(self):
         posix.close(self.fd)
         del self.fd
 
