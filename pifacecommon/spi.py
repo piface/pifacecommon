@@ -27,6 +27,7 @@ class SPIDevice(object):
         self.bus = bus
         self.chip_select = chip_select
         self.spi_callback = spi_callback
+        self.fd = None
         spi_device = "%s%d.%d" % (SPIDEV, self.bus, self.chip_select)
         self.open_fd(spi_device)
 
