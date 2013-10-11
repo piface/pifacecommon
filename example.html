@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example &mdash; PiFace Common 3.0.0 documentation</title>
+    <title>Example &mdash; PiFace Common 4.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.0',
+        VERSION:     '4.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 3.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Common 4.0.0 documentation" href="index.html" />
     <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 4.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,16 +56,18 @@
             
   <div class="section" id="example">
 <h1>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h1>
-<p>Here are some examples of how to use pifacecommon:</p>
-<div class="highlight-python"><pre>$ python3
-&gt;&gt;&gt; import pifacecommon
-&gt;&gt;&gt; pifacecommon.core.init()
-&gt;&gt;&gt; pifacecommon.core.write(0xAA, pifacecommon.core.GPIOA)
-&gt;&gt;&gt; pifacecommon.core.read(pifacecommon.core.GPIOA)
-0xAA
-&gt;&gt;&gt; pifacecommon.core.write_bit(1, 0, pifacecommon.core.GPIOA)
-&gt;&gt;&gt; pifacecommon.core.read_bit(0, pifacecommon.core.GPIOA)
-1</pre>
+<p>Here are some examples of how to use pifacecommon.</p>
+<div class="section" id="mcp23s17">
+<h2>MCP23S17<a class="headerlink" href="#mcp23s17" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacecommon.mcp23s17</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcp</span> <span class="o">=</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">mcp23s17</span><span class="o">.</span><span class="n">MCP23S17</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcp</span><span class="o">.</span><span class="n">gpioa</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mh">0xAA</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcp</span><span class="o">.</span><span class="n">gpioa</span><span class="o">.</span><span class="n">value</span>
+<span class="go">170</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcp</span><span class="o">.</span><span class="n">gpioa</span><span class="o">.</span><span class="n">bits</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="go">1</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -75,6 +77,14 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Example</a><ul>
+<li><a class="reference internal" href="#mcp23s17">MCP23S17</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="installation.html"
                         title="previous chapter">Installation</a></p>
@@ -118,7 +128,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 4.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; PiFace Common 3.0.0 documentation</title>
+    <title>Installation &mdash; PiFace Common 4.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.0',
+        VERSION:     '4.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Common 3.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Common 4.0.0 documentation" href="index.html" />
     <link rel="next" title="Example" href="example.html" />
     <link rel="prev" title="Welcome to PiFace Common’s documentation!" href="index.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to PiFace Common’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 4.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -58,35 +58,37 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Subtitute <tt class="docutils literal"><span class="pre">python3</span></tt> for <tt class="docutils literal"><span class="pre">python</span></tt> if you want to install for
-Python 2.</p>
+<div class="section" id="apt-get">
+<h3>apt-get<a class="headerlink" href="#apt-get" title="Permalink to this headline">¶</a></h3>
+<p>Make sure you are using the lastest version of Raspbian:</p>
+<div class="highlight-python"><pre>$ sudo apt-get update
+$ sudo apt-get upgrade</pre>
 </div>
-<div class="section" id="automatically">
-<h3>Automatically<a class="headerlink" href="#automatically" title="Permalink to this headline">¶</a></h3>
-<p>Download the latest debian package from
-<a class="reference external" href="https://github.com/piface/pifacecommon/releases">here</a>. Then install with:</p>
-<pre class="literal-block">
-$ sudo dpkg -i python3-pifacecommon_3.0.0-1_all.deb
-</pre>
+<p>Install <tt class="docutils literal"><span class="pre">pifacecommon</span></tt> (for Python 3 and 2) with the following command:</p>
+<div class="highlight-python"><pre>$ sudo apt-get install python{,3}-pifacecommon</pre>
+</div>
+<p>You will also need to set up automatic loading of the SPI kernel module which
+can be done with the lastest version of <tt class="docutils literal"><span class="pre">raspi-config</span></tt>. Run:</p>
+<div class="highlight-python"><pre>$ sudo raspi-config</pre>
+</div>
+<p>Then navigate to <tt class="docutils literal"><span class="pre">Advanced</span> <span class="pre">Options</span></tt>, <tt class="docutils literal"><span class="pre">SPI</span></tt> and select <tt class="docutils literal"><span class="pre">yes</span></tt>.</p>
 <p>You may need to reboot.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Python 2 users will want to use python-pifacecommon_3.0.0-1_all.deb.</p>
-</div>
 </div>
 <div class="section" id="manually">
 <h3>Manually<a class="headerlink" href="#manually" title="Permalink to this headline">¶</a></h3>
-<p>This is a more detailed description of the installation. You will have to reboot
-after setting up SPI and GPIO permissions.</p>
+<p>This is a more detailed description of the installation. You will have
+to reboot after setting up SPI and GPIO permissions.</p>
 <div class="section" id="building-and-installing">
 <h4>Building and installing<a class="headerlink" href="#building-and-installing" title="Permalink to this headline">¶</a></h4>
 <p>Download and install with:</p>
 <div class="highlight-python"><pre>$ git clone https://github.com/piface/pifacecommon.git
 $ cd pifacecommon/
-$ sudo python3 setup.py install
-$ sudo bin/post-installation.sh</pre>
+$ sudo python3 setup.py install</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Subtitute <tt class="docutils literal"><span class="pre">python3</span></tt> for <tt class="docutils literal"><span class="pre">python</span></tt> if you want to install for
+Python 2.</p>
 </div>
 </div>
 <div class="section" id="enable-the-spi-module">
@@ -100,7 +102,8 @@ but is not enabled by default. You can load the SPI driver manually by running:<
 <tt class="docutils literal"><span class="pre">blacklist</span> <span class="pre">spi-bcm2708</span></tt> line in <tt class="docutils literal"><span class="pre">/etc/modprobe.d/raspi-blacklist.conf</span></tt>.</p>
 <p>The /dev/spidev* devices should now appear but they require special privileges
 for the user <em>pi</em> to access them. You can set these up by adding the following
-rule to <tt class="docutils literal"><span class="pre">/etc/udev/rules.d/50-spi.rules</span></tt>:</p>
+<a class="reference external" href="https://wiki.debian.org/udev">udev rule</a> to
+<tt class="docutils literal"><span class="pre">/etc/udev/rules.d/50-spi.rules</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">KERNEL</span><span class="o">==</span><span class="s">&quot;spidev*&quot;</span><span class="p">,</span> <span class="n">GROUP</span><span class="o">=</span><span class="s">&quot;spi&quot;</span><span class="p">,</span> <span class="n">MODE</span><span class="o">=</span><span class="s">&quot;0660&quot;</span>
 </pre></div>
 </div>
@@ -108,11 +111,16 @@ rule to <tt class="docutils literal"><span class="pre">/etc/udev/rules.d/50-spi.
 <div class="highlight-python"><pre>$ groupadd spi
 $ gpasswd -a pi spi</pre>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To enable other users to access SPI devices (PiFace, for example)
+you can add them to the <tt class="docutils literal"><span class="pre">spi</span></tt> group with <tt class="docutils literal"><span class="pre">gpasswd</span> <span class="pre">-a</span> <span class="pre">otheruser</span> <span class="pre">spi</span></tt>.</p>
+</div>
 </div>
 <div class="section" id="enable-gpio-access">
 <h4>Enable GPIO access<a class="headerlink" href="#enable-gpio-access" title="Permalink to this headline">¶</a></h4>
 <p>Interrupts work by monitoring the GPIO pins. You&#8217;ll need to give the user <em>pi</em>
-access to these by adding the following udev rule to
+access to these by adding the following udev rule (all on one line) to
 <tt class="docutils literal"><span class="pre">/etc/udev/rules.d/51-gpio.rules</span></tt>:</p>
 <div class="highlight-python"><pre>SUBSYSTEM==&quot;gpio*&quot;, PROGRAM=&quot;
 /bin/sh -c &#x27;chown -R root:gpio /sys/class/gpio &amp;&amp;
@@ -129,7 +137,7 @@ $ gpasswd -a pi gpio</pre>
 </div>
 <div class="section" id="uninstall">
 <h2>Uninstall<a class="headerlink" href="#uninstall" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><pre>$ sudo dpkg --remove python3-pifacecommon</pre>
+<div class="highlight-python"><pre>$ sudo apt-get remove python{,3}-pifacecommon</pre>
 </div>
 </div>
 </div>
@@ -144,7 +152,7 @@ $ gpasswd -a pi gpio</pre>
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#install">Install</a><ul>
-<li><a class="reference internal" href="#automatically">Automatically</a></li>
+<li><a class="reference internal" href="#apt-get">apt-get</a></li>
 <li><a class="reference internal" href="#manually">Manually</a><ul>
 <li><a class="reference internal" href="#building-and-installing">Building and installing</a></li>
 <li><a class="reference internal" href="#enable-the-spi-module">Enable the SPI module</a></li>
@@ -201,7 +209,7 @@ $ gpasswd -a pi gpio</pre>
         <li class="right" >
           <a href="index.html" title="Welcome to PiFace Common’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Common 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Common 4.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
