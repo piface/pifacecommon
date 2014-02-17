@@ -1,5 +1,10 @@
 Change Log
 ==========
+v4.1.0
+------
+- Added deregister to interrupts
+
+
 
 v4.0.0
 ------
