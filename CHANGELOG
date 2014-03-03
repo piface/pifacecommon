@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+v4.0.1
+------
+- Fixed SPI file descriptor bug when closing.
+- Fixed issue #14.
+
 v4.0.0
 ------
 - Ignored "Interrupted system call" error in `watch_port_events`.

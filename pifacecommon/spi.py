@@ -46,7 +46,7 @@ class SPIDevice(object):
 
     def close_fd(self):
         posix.close(self.fd)
-        del self.fd
+        self.fd = None
 
     def spisend(self, bytes_to_send):
         """Sends bytes via the SPI bus.
