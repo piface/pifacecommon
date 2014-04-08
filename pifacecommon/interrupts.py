@@ -331,8 +331,10 @@ def handle_events(
             if event_matches_function_map(event, fm) else None,
             function_maps)
         # reduce to just the callback functions (remove None)
-        # TODO: I think this can just be filter(None, functions)
-        functions = filter(lambda f: f is not None, functions)
+        # NOTE: It may be thought that a filter would be better here
+        # but in the event that listeners are changed in response to
+        # an event then it can occur that the filter will be corrupted.
+        functions = [f for f in functions if f is not None]
 
         for function in functions:
             function(event)
