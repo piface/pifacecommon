@@ -1,10 +1,13 @@
 Change Log
 ==========
+
+v4.1.1
+------
+- Support varying listeners.
+
 v4.1.0
 ------
-- Added deregister to interrupts
-
-
+- Added deregister to interrupts.
 
 v4.0.1
 ------
