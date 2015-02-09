@@ -1,15 +1,23 @@
 Change Log
 ==========
+
+v4.1.1
+------
+- Fixed bug with new Device Tree (Pi2) by changing GPIO_INTERRUPT_DEVICE
+  from `/sys/devices/virtual/gpio/` to `/sys/class/gpio/` and changing udev
+  rule.
+
+
 v4.1.0
 ------
 - Added deregister to interrupts
-
 
 
 v4.0.1
 ------
 - Fixed SPI file descriptor bug when closing.
 - Fixed issue #14.
+
 
 v4.0.0
 ------

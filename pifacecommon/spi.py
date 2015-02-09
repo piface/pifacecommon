@@ -31,9 +31,9 @@ class SPIDevice(object):
         spi_device = "%s%d.%d" % (SPIDEV, self.bus, self.chip_select)
         self.open_fd(spi_device)
 
-    def __del__(self):
-        if self.fd is not None:
-            self.close_fd()
+    # def __del__(self):
+    #     if self.fd is not None:
+    #         self.close_fd()
 
     def open_fd(self, spi_device):
         try:
