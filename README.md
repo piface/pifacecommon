@@ -7,7 +7,7 @@ Common functions for interacting with PiFace products.
 Documentation
 =============
 
-[http://piface.github.io/pifacecommon/](http://piface.github.io/pifacecommon/)
+[http://pifacecommon.readthedocs.org/](http://pifacecommon.readthedocs.org/)
 
 You can also find the documentation installed at:
 

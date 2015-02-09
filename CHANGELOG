@@ -1,16 +1,21 @@
 Change Log
 ==========
 
-v4.1.1
+v4.1.2
 ------
 - Fixed bug with new Device Tree (Pi2) by changing GPIO_INTERRUPT_DEVICE
   from `/sys/devices/virtual/gpio/` to `/sys/class/gpio/` and changing udev
   rule.
 
 
+v4.1.1
+------
+- Support varying listeners.
+
+
 v4.1.0
 ------
-- Added deregister to interrupts
+- Added deregister to interrupts.
 
 
 v4.0.1
