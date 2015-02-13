@@ -51,8 +51,12 @@ but is not enabled by default. You can load the SPI driver manually by running::
 
     $ sudo modprobe spi-bcm2708
 
-And you can permanently enable it by commenting out the
-``blacklist spi-bcm2708`` line in ``/etc/modprobe.d/raspi-blacklist.conf``.
+You can permanently enable it one of two ways, depending on which kernel
+version you're on.
+
+    - Kernel Version < 3.18 (The old way): Comment out ``blacklist spi-bcm2708`` line in ``/etc/modprobe.d/raspi-blacklist.conf``.
+
+    - Kernel Version >= 3.18 (Device Tree): add ``dtparam=spi=on`` to ``/boot/config/txt``
 
 The /dev/spidev* devices should now appear but they require special privileges
 for the user *pi* to access them. You can set these up by adding the following
@@ -76,11 +80,7 @@ Interrupts work by monitoring the GPIO pins. You'll need to give the user *pi*
 access to these by adding the following udev rule (all on one line) to
 ``/etc/udev/rules.d/51-gpio.rules``::
 
-    SUBSYSTEM=="gpio*", PROGRAM="
-    /bin/sh -c 'chown -R root:gpio /sys/class/gpio &&
-    chmod -R 770 /sys/class/gpio;
-    chown -R root:gpio /sys/devices/virtual/gpio &&
-    chmod -R 770 /sys/devices/virtual/gpio'"
+    SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c 'chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio'"
 
 Then create the gpio group and add the user pi::
 
