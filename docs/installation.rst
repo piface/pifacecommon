@@ -54,9 +54,9 @@ but is not enabled by default. You can load the SPI driver manually by running::
 You can permanently enable it one of two ways, depending on which kernel
 version you're on.
 
-    - Kernel Version < 3.18 (The old way): Comment out ``blacklist spi-bcm2708`` line in ``/etc/modprobe.d/raspi-blacklist.conf``.
+- Kernel Version < 3.18 (The old way): Comment out ``blacklist spi-bcm2708`` line in ``/etc/modprobe.d/raspi-blacklist.conf``.
 
-    - Kernel Version >= 3.18 (Device Tree): add ``dtparam=spi=on`` to ``/boot/config/txt``
+- Kernel Version >= 3.18 (Device Tree): add ``dtparam=spi=on`` to ``/boot/config/txt``
 
 The /dev/spidev* devices should now appear but they require special privileges
 for the user *pi* to access them. You can set these up by adding the following
