@@ -148,7 +148,7 @@ class PortEventListener(object):
 
     TERMINATE_SIGNAL = "astalavista"
 
-    def __init__(self, port, chip, return_after_kbdint=True):
+    def __init__(self, port, chip, return_after_kbdint=True, daemon=False):
         self.port = port
         self.chip = chip
         self.pin_function_maps = list()
@@ -161,6 +161,7 @@ class PortEventListener(object):
                 self.pin_function_maps,
                 self.event_queue,
                 return_after_kbdint))
+        self.detector.daemon = daemon
         self.dispatcher = threading.Thread(
             target=handle_events,
             args=(
@@ -168,6 +169,7 @@ class PortEventListener(object):
                 self.event_queue,
                 _event_matches_pin_function_map,
                 PortEventListener.TERMINATE_SIGNAL))
+        self.dispatcher.daemon = daemon
 
     def register(self, pin_num, direction, callback,
                  settle_time=DEFAULT_SETTLE_TIME):

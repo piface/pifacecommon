@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v4.2.0
+------
+- Added daemon flag for PortEventListener.
+
 v4.1.2
 ------
 - Fixed bug with new Device Tree (Pi2) by changing GPIO_INTERRUPT_DEVICE
