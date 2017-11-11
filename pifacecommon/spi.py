@@ -65,7 +65,8 @@ class SPIDevice(object):
         transfer = spi_ioc_transfer(
             tx_buf=ctypes.addressof(wbuffer),
             rx_buf=ctypes.addressof(rbuffer),
-            len=ctypes.sizeof(wbuffer)
+            len=ctypes.sizeof(wbuffer),
+	    speed_hz=ctypes.c_uint32(100000)
         )
 
         if self.spi_callback is not None:
