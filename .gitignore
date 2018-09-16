@@ -1,3 +1,5 @@
+.idea
+
 dpkg-files
 makedebpkg.sh
 *.deb
