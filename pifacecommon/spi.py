@@ -15,7 +15,7 @@ class SPIInitError(Exception):
 
 class SPIDevice(object):
     """An SPI Device at /dev/spi<bus>.<chip_select>."""
-    def __init__(self, bus=0, chip_select=0, spi_callback=None):
+    def __init__(self, bus=0, chip_select=0, spi_callback=None, speed_hz=100000):
         """Initialises the SPI device file descriptor.
 
         :param bus: The SPI device bus number
@@ -27,6 +27,7 @@ class SPIDevice(object):
         self.bus = bus
         self.chip_select = chip_select
         self.spi_callback = spi_callback
+        self.speed_hz = speed_hz
         self.fd = None
         spi_device = "%s%d.%d" % (SPIDEV, self.bus, self.chip_select)
         self.open_fd(spi_device)
@@ -66,7 +67,7 @@ class SPIDevice(object):
             tx_buf=ctypes.addressof(wbuffer),
             rx_buf=ctypes.addressof(rbuffer),
             len=ctypes.sizeof(wbuffer),
-	    speed_hz=ctypes.c_uint32(100000)
+            speed_hz=ctypes.c_uint32(self.speed_hz)
         )
 
         if self.spi_callback is not None:

@@ -87,8 +87,8 @@ class MCP23S17(SPIDevice):
     :attribute: olata/olatb -- The OLAT register provides access to the
                                output latches.
     """
-    def __init__(self, hardware_addr=0, bus=0, chip_select=0):
-        super(MCP23S17, self).__init__(bus, chip_select)
+    def __init__(self, hardware_addr=0, bus=0, chip_select=0, speed_hz=100000):
+        super(MCP23S17, self).__init__(bus, chip_select, speed_hz=speed_hz)
         self.hardware_addr = hardware_addr
 
         self.iodira = MCP23S17Register(IODIRA, self)
