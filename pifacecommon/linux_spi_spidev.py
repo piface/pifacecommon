@@ -67,7 +67,9 @@ class spi_ioc_transfer(ctypes.Structure):
         ("delay_usecs", ctypes.c_uint16),
         ("bits_per_word", ctypes.c_uint8),
         ("cs_change", ctypes.c_uint8),
-        ("pad", ctypes.c_uint32)]
+        ("tx_nbits", ctypes.c_uint8),
+        ("rx_nbits", ctypes.c_uint8),
+        ("pad", ctypes.c_uint16)]
 
     __slots__ = [name for name, type in _fields_]
 
