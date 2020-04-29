@@ -21,9 +21,16 @@ Make sure you are using the lastest version of Raspbian:
     $ sudo apt-get update
     $ sudo apt-get upgrade
 
-Install `pifacecommon` (for Python 3 and 2) with the following command:
+Install `pifacecommon` with the following commands:
 
-    $ sudo apt-get install python{,3}-pifacecommon
+    Python 2:
+    $ sudo pip pifacecommon
+
+    Python 3:
+    $ sudo pip3 pifacecommon
+
+    Notice: Installation from Raspbian repository with apt is not longer the preferred way, take a look into [https://github.com/piface/pifacecommon/issues/27#issuecomment-451400154](issue 27)
+    
 
 You will also need to set up automatic loading of the SPI kernel module which
 can be done with the lastest version of `raspi-config`. Run:
