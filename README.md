@@ -21,7 +21,7 @@ Make sure you are using the lastest version of Raspbian:
     $ sudo apt-get update
     $ sudo apt-get upgrade
 
-Install `pifacecommon` with the following commands:
+Install `pifacecommon` with the following command:
 
     Python 3:
     $ sudo pip3 install pifacecommon
